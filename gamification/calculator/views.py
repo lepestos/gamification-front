@@ -1,8 +1,13 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .models import Product, BlackBoxItem, BlackBox
 from .serializers import (ProductSerializer, BlackBoxItemSerializer,
-                          BlackBoxSerializer, BlackBoxCreateSerializer)
+                          BlackBoxSerializer, BlackBoxCreateSerializer,
+                          CalculateSerializer,)
+from .box import Box
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
@@ -21,6 +26,8 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return BlackBoxCreateSerializer
+        if self.action == 'calculate':
+            return CalculateSerializer
         return super().get_serializer_class()
 
     def perform_create(self, serializer):
@@ -33,3 +40,17 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
                                                price=product.price, probability=prob)
             item.save()
         box.save()
+
+    @action(detail=False, methods=['post'])
+    def calculate(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            box = Box(**serializer.data)
+            data = {
+                'probabilities': box.probabilities,
+                'amounts': box.amounts
+            }
+            return Response(data)
+
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)

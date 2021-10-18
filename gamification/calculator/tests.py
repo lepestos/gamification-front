@@ -92,3 +92,16 @@ class BlackBoxTest(APITestCase):
         data = response.json()
         self.assertEqual({item['product']['name'] for item in data['items']},
                          {f'Product #{i}' for i in range(3)})
+
+
+class CalculateTest(APITestCase):
+    def test_calculate(self):
+        data = {
+            'prices': [50, 30, 20],
+            'max_count_costly': 10,
+            'profit': 0.1,
+            'loyalty': 0.7,
+        }
+        response = self.client.post(reverse('blackbox-list') + 'calculate/', data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(list(response.data['amounts']), [10, 10, 9])
