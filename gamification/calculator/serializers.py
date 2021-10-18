@@ -10,6 +10,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class BlackBoxItemSerializer(serializers.HyperlinkedModelSerializer):
+    product = ProductSerializer()
     class Meta:
         model = BlackBoxItem
         fields = ('product', 'black_box', 'price', 'amount', 'probability',)
