@@ -24,7 +24,7 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
     queryset = BlackBox.objects.all()
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action in ['create', 'update']:
             return BlackBoxCreateSerializer
         if self.action == 'calculate':
             return CalculateSerializer

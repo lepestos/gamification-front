@@ -36,6 +36,18 @@ class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
         model = BlackBox
         fields = ('name', 'products', 'probabilities',)
 
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        products = validated_data.get('products', instance.products)
+        probabilities = validated_data.get('probabilities', instance.probabilities)
+        instance.items.all().delete()
+        for product, prob in zip(products, probabilities):
+            item = BlackBoxItem.objects.create(product=product, black_box=instance,
+                                               price=product.price, probability=prob)
+            item.save()
+        instance.save()
+        return instance
+
 
 class CalculateSerializer(serializers.Serializer):
     prices = serializers.ListField(
