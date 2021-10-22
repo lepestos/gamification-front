@@ -44,3 +44,12 @@ base_url: "localhost:8000/api/v1"
             probabilities: [prob_1, prob_2, prob_3],
             amounts: [a_1, a_2, a_3]
         }
+
+/black-box/:id/mock_open
+    POST: провести n открытий коробки (база данных не изменяется)
+        body: {
+            "n": Integer
+        }
+        response: {
+            "product_names": [name_1, name_2, ... , name_n]
+        }
