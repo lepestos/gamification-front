@@ -1,4 +1,4 @@
-from random import choice, seed
+from random import choices, seed
 
 from django.db import models
 
@@ -45,9 +45,10 @@ class BlackBox(models.Model):
         res = []
         for _ in range(n):
             valid_options = [i for i in range(3) if amounts[i] > 0]
+            weights = [amounts[i] for i in range(3) if amounts[i] > 0]
             if len(valid_options) == 0:
                 break
-            i = choice(valid_options)
+            i = choices(valid_options, weights=weights)[0]
             amounts[i] -= 1
             res.append(products[i])
         return res

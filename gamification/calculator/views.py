@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from .models import Product, BlackBoxItem, BlackBox
 from .serializers import (ProductSerializer, BlackBoxItemSerializer,
                           BlackBoxSerializer, BlackBoxCreateSerializer,
-                          CalculateSerializer,)
+                          CalculateSerializer, MockOpenSerializer)
 from .box import Box
 
 
@@ -28,6 +28,8 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
             return BlackBoxCreateSerializer
         if self.action == 'calculate':
             return CalculateSerializer
+        if self.action == 'mock_open':
+            return MockOpenSerializer
         return super().get_serializer_class()
 
     def perform_create(self, serializer):
@@ -50,6 +52,18 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
                 'probabilities': box.probabilities,
                 'amounts': box.amounts
             }
+            return Response(data)
+
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def mock_open(self, request, pk):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            bb = BlackBox.objects.get(pk=pk)
+            products = bb.mock_open(serializer.data.get('n'))
+            data = {'product_names': [product.name for product in products]}
             return Response(data)
 
         return Response(serializer.errors,

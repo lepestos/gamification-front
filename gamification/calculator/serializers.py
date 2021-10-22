@@ -61,3 +61,7 @@ class CalculateSerializer(serializers.Serializer):
     loyalty = serializers.DecimalField(
         required=False, min_value=0, max_value=1, max_digits=3, decimal_places=2
     )
+
+
+class MockOpenSerializer(serializers.Serializer):
+    n = serializers.IntegerField(min_value=1)

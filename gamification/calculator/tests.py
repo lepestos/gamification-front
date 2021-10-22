@@ -55,7 +55,7 @@ class BlackBoxTest(APITestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.products = [Product.objects.create(name=f'Product #{i}',
-                                           price=1000) for i in range(3)]
+                                               price=1000) for i in range(3)]
         for product in cls.products:
             product.save()
         pks = [product.pk for product in cls.products]
@@ -150,6 +150,7 @@ class MockOpenTest(APITestCase):
         ) for product, amount in zip(cls.products, amounts)]
         for item in cls.items_1:
             item.save()
+        cls.bb_1.save()
 
         cls.bb_2 = BlackBox.objects.create(name='Box 2')
         amounts = [10, 20, 30]
@@ -158,6 +159,7 @@ class MockOpenTest(APITestCase):
         ) for product, amount in zip(cls.products, amounts)]
         for item in cls.items_2:
             item.save()
+        cls.bb_2.save()
 
     def test_mock_open_small(self):
         res = self.bb_1.mock_open(3)
@@ -174,3 +176,10 @@ class MockOpenTest(APITestCase):
         self.assertEqual(Counter(res), Counter(
             {self.products[0]: 10, self.products[1]: 20, self.products[2]: 30}
         ))
+
+    def test_api(self):
+        pk = self.bb_1.pk
+        response = self.client.post(reverse('blackbox-detail', args=[pk]) + 'mock_open/', data={'n': 10})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEqual(set(data['product_names']), {f'Product #{i}' for i in range(3)})
