@@ -20,6 +20,7 @@ class Product(models.Model):
 
 class BlackBox(models.Model):
     name = models.CharField(max_length=127)
+    price = models.DecimalField(max_digits=7, decimal_places=2)
     time_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -58,7 +59,6 @@ class BlackBoxItem(models.Model):
                                 related_name='items')
     black_box = models.ForeignKey(BlackBox, on_delete=models.CASCADE,
                                   related_name='items')
-    # in case we need to change the original price
     amount = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):

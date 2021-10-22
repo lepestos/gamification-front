@@ -22,7 +22,7 @@ class BlackBoxSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BlackBox
-        fields = ('name', 'url', 'items',)
+        fields = ('name', 'price', 'url', 'items',)
 
 
 class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
@@ -36,10 +36,11 @@ class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BlackBox
-        fields = ('name', 'products', 'amounts',)
+        fields = ('name', 'price', 'products', 'amounts',)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
+        instance.price = validated_data.get('price', instance.price)
         products = validated_data.get('products', instance.products)
         amounts = validated_data.get('amounts', instance.probabilities)
         instance.items.all().delete()

@@ -13,7 +13,7 @@ class Box:
         self.max_count_costly = max_count_costly
         self.profit = float(profit)
         self.loyalty = float(loyalty)
-        self.ticket_price = sqrt(self.get_max_ticket_price() * self.get_min_ticket_price())
+        self.ticket_price = round(sqrt(self.get_max_ticket_price() * self.get_min_ticket_price()), 2)
         self.probabilities = self.get_probabilities()
         self.amounts = self.get_amounts()
 
@@ -35,3 +35,8 @@ class Box:
         a1 = self.max_count_costly
         p1, p2, p3 = self.probabilities
         return a1, ceil(a1 * p2 / p1), ceil(a1 * p3 / p1)
+
+if __name__ == '__main__':
+    box = Box([50, 30, 20], 10, 0.1, 0.7)
+    print(box.get_amounts())
+    print(box.ticket_price)

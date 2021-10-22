@@ -35,7 +35,8 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         products = serializer.data['products']
         amounts = serializer.data['amounts']
-        box = BlackBox.objects.create(name=serializer.data['name'])
+        price = serializer.data['price']
+        box = BlackBox.objects.create(name=serializer.data['name'], price=price)
         for pk, am in zip(products, amounts):
             product = Product.objects.get(pk=pk)
             item = BlackBoxItem.objects.create(product=product, black_box=box,
@@ -50,7 +51,8 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
             box = Box(**serializer.data)
             data = {
                 'probabilities': box.probabilities,
-                'amounts': box.amounts
+                'amounts': box.amounts,
+                'black_box_cost': box.ticket_price
             }
             return Response(data)
 
