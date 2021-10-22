@@ -32,12 +32,12 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         products = serializer.data['products']
-        probabilities = serializer.data['probabilities']
+        amount = serializer.data['amount']
         box = BlackBox.objects.create(name=serializer.data['name'])
-        for pk, prob in zip(products, probabilities):
+        for pk, am in zip(products, amount):
             product = Product.objects.get(pk=pk)
             item = BlackBoxItem.objects.create(product=product, black_box=box,
-                                               price=product.price, probability=prob)
+                                                amount=am)
             item.save()
         box.save()
 

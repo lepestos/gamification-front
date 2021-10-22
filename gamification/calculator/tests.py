@@ -4,6 +4,7 @@ from rest_framework import status
 
 from .models import Product, BlackBox
 
+
 class ProductTest(APITestCase):
     def tearDown(self):
         Product.objects.all().delete()
@@ -59,10 +60,10 @@ class BlackBoxTest(APITestCase):
         cls.data = {
             'name': 'Box',
             'products': pks,
-            'probabilities': [20, 30, 50]
+            'amount': [10, 30, 70]
         }
-        cls.probs = {
-            f'Product #{i}': prob for i, prob in zip(range(3), [20, 30, 50])
+        cls.amounts = {
+            f'Product #{i}': amount for i, amount in zip(range(3), [10,30,70])
         }
 
     def tearDown(self):
@@ -73,7 +74,7 @@ class BlackBoxTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         bb = BlackBox.objects.get(name='Box')
         for item in bb.items.all():
-            self.assertEqual(item.probability, self.probs[item.product.name])
+            self.assertEqual(item.amount, self.amounts[item.product.name])
 
     def test_delete(self):
         response = self.client.post(reverse('blackbox-list'), data=self.data)
