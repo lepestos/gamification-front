@@ -6,18 +6,20 @@ from .models import Product, BlackBox, BlackBoxItem
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ('name', 'price', 'image', 'url',)
+        fields = ('name', 'price', 'url',)
 
 
 class BlackBoxItemSerializer(serializers.HyperlinkedModelSerializer):
     product = ProductSerializer()
+
     class Meta:
         model = BlackBoxItem
-        fields = ('product', 'black_box', 'price', 'amount', 'probability',)
+        fields = ('product', 'black_box', 'amount')
 
 
 class BlackBoxSerializer(serializers.ModelSerializer):
     items = BlackBoxItemSerializer(many=True)
+
     class Meta:
         model = BlackBox
         fields = ('name', 'url', 'items',)
@@ -27,23 +29,23 @@ class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
     products = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), many=True
     )
-    probabilities = serializers.ListField(
-        child=serializers.IntegerField(min_value=0, max_value=100),
+    amounts = serializers.ListField(
+        child=serializers.IntegerField(min_value=0),
         min_length=3, max_length=3
     )
 
     class Meta:
         model = BlackBox
-        fields = ('name', 'products', 'probabilities',)
+        fields = ('name', 'products', 'amounts',)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         products = validated_data.get('products', instance.products)
-        probabilities = validated_data.get('probabilities', instance.probabilities)
+        amounts = validated_data.get('amounts', instance.probabilities)
         instance.items.all().delete()
-        for product, prob in zip(products, probabilities):
+        for product, amount in zip(products, amounts):
             item = BlackBoxItem.objects.create(product=product, black_box=instance,
-                                               price=product.price, probability=prob)
+                                               amount=amount)
             item.save()
         instance.save()
         return instance

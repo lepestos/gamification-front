@@ -10,7 +10,6 @@ class Product(models.Model):
     name = models.CharField(max_length=127)
     price = models.DecimalField(max_digits=7, decimal_places=2)
     time_created = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='uploads/', blank=True, null=True)
 
     class Meta:
         ordering = ('-time_created',)
@@ -60,9 +59,7 @@ class BlackBoxItem(models.Model):
     black_box = models.ForeignKey(BlackBox, on_delete=models.CASCADE,
                                   related_name='items')
     # in case we need to change the original price
-    price = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     amount = models.PositiveIntegerField(null=True, blank=True)
-    probability = models.PositiveIntegerField()
 
     def __str__(self):
         return f'{self.product.name} in {self.black_box.name}'

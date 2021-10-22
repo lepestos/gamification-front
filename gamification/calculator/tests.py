@@ -7,6 +7,7 @@ from rest_framework import status
 
 from .models import Product, BlackBox, BlackBoxItem
 
+
 class ProductTest(APITestCase):
     def tearDown(self):
         Product.objects.all().delete()
@@ -52,6 +53,11 @@ class ProductTest(APITestCase):
 
 class BlackBoxTest(APITestCase):
     @classmethod
+    def tearDownClass(cls):
+        Product.objects.all().delete()
+        super().tearDownClass()
+
+    @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.products = [Product.objects.create(name=f'Product #{i}',
@@ -62,10 +68,10 @@ class BlackBoxTest(APITestCase):
         cls.data = {
             'name': 'Box',
             'products': pks,
-            'probabilities': [20, 30, 50]
+            'amounts': [10, 30, 70]
         }
-        cls.probs = {
-            f'Product #{i}': prob for i, prob in zip(range(3), [20, 30, 50])
+        cls.amounts = {
+            f'Product #{i}': amount for i, amount in zip(range(3), [10,30,70])
         }
 
     def tearDown(self):
@@ -77,7 +83,7 @@ class BlackBoxTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         bb = BlackBox.objects.get(name='Box')
         for item in bb.items.all():
-            self.assertEqual(item.probability, self.probs[item.product.name])
+            self.assertEqual(item.amount, self.amounts[item.product.name])
 
     def test_delete(self):
         response = self.client.post(reverse('blackbox-list'), data=self.data)
@@ -108,15 +114,15 @@ class BlackBoxTest(APITestCase):
             product.save()
         pks = [product.pk for product in other_products]
         new_data['products'] = pks
-        other_probs = {
-            f'Another product #{i}': prob for i, prob in zip(range(3), [20, 30, 50])
+        other_amounts = {
+            f'Another product #{i}': prob for i, prob in zip(range(3), [10, 30, 70])
         }
         response = self.client.put(reverse('blackbox-detail', args=[pk]), data=new_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         bb = BlackBox.objects.get(pk=pk)
         self.assertEqual(bb.name, 'Another Box')
         for item in bb.items.all():
-            self.assertEqual(item.probability, other_probs[item.product.name])
+            self.assertEqual(item.amount, other_amounts[item.product.name])
             self.assertEqual(item.product.price, 2000)
         self.assertEqual(BlackBox.objects.count(), 1)
         self.assertEqual(BlackBoxItem.objects.count(), 3)
@@ -137,6 +143,11 @@ class CalculateTest(APITestCase):
 
 class MockOpenTest(APITestCase):
     @classmethod
+    def tearDownClass(cls):
+        Product.objects.all().delete()
+        super().tearDownClass()
+
+    @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.products = [Product.objects.create(name=f'Product #{i}',
@@ -146,7 +157,7 @@ class MockOpenTest(APITestCase):
         cls.bb_1 = BlackBox.objects.create(name='Box 1')
         amounts = [1, 1, 1]
         cls.items_1 = [BlackBoxItem.objects.create(
-            black_box=cls.bb_1, product=product, amount=amount, probability=0
+            black_box=cls.bb_1, product=product, amount=amount
         ) for product, amount in zip(cls.products, amounts)]
         for item in cls.items_1:
             item.save()
@@ -155,7 +166,7 @@ class MockOpenTest(APITestCase):
         cls.bb_2 = BlackBox.objects.create(name='Box 2')
         amounts = [10, 20, 30]
         cls.items_2 = [BlackBoxItem.objects.create(
-            black_box=cls.bb_2, product=product, amount=amount, probability=0
+            black_box=cls.bb_2, product=product, amount=amount
         ) for product, amount in zip(cls.products, amounts)]
         for item in cls.items_2:
             item.save()
