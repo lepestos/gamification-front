@@ -51,7 +51,10 @@ export default {
         }
     },
     actions: {
-        calculateParametersClicked(ctx, input_data) {
+        async calculateParametersClicked(ctx, input_data) {
+            if (input_data.lot_cost.cheap === '' || input_data.lot_cost.middle === '' || input_data.lot_cost.costly === '' ) {
+                return 'цены лотов не могут быть пустыми'
+            }
             ctx.commit('updateCost', input_data.lot_cost)
             ctx.commit('updateLoyality', input_data.loyality)
             ctx.commit('updateRentability', input_data.rentability)
@@ -65,6 +68,7 @@ export default {
             ctx.commit('updatePercents', response.probabilities)
             ctx.commit('updateAmounts', response.amounts)
             ctx.commit('updateBlackBoxCost', response.black_box_cost)
+            return ''
         }
     },
     getters: {

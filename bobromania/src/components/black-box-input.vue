@@ -5,9 +5,9 @@
         <div class="black-box-input_lot-costs lot-costs">
           <h2>Стоимость лотов</h2>
           <div class="lot-costs__inputs">
-            <input type="text" class="lot-costs__cheap" placeholder="Дешёвый" v-model="input_data.lot_cost.cheap">
-            <input type="text" class="lot-costs__middle" placeholder="Средний" v-model="input_data.lot_cost.middle">
-            <input type="text" class="lot-costs__costly" placeholder="Дорогой" v-model="input_data.lot_cost.costly">
+            <input type="number"  class="lot-costs__cheap" placeholder="Дешёвый" v-model="input_data.lot_cost.cheap">
+            <input type="number" class="lot-costs__middle" placeholder="Средний" v-model="input_data.lot_cost.middle">
+            <input type="number" class="lot-costs__costly" placeholder="Дорогой" v-model="input_data.lot_cost.costly">
           </div>
         </div>
         <button class="black-box-input__choose-from-showcase">Выбрать лоты с витрины</button>
@@ -16,17 +16,18 @@
         <div class="black-box-input__constants constants">
           <h2>Расчётные константы</h2>
           <div class="constants__inputs">
-            <span class="constants__span_two-lines">Целевая лояльность:</span><input type="text" v-model="input_data.loyality">
-            <span class="constants__span_one-line">Рентабельность:</span><input type="text" v-model="input_data.rentability">
+            <span class="constants__span_two-lines">Целевая лояльность:</span><input type="number" v-model="input_data.loyality">
+            <span class="constants__span_one-line">Рентабельность:</span><input type="number" v-model="input_data.rentability">
           </div>
         </div>
         <div class="black-box-input__costly-amount costly-amount">
           <h2>Количество дорогих лотов</h2>
-          <input type="text" placeholder="Введите количество" v-model="input_data.costly_amount">
+          <input type="number" placeholder="Введите количество" v-model="input_data.costly_amount">
         </div>
       </div>
     </div>
-    <button class="black-box-input__calculate-parameters" @click="this.calculateParametersClicked(input_data)">Рассчитать параметры</button>
+    <button class="black-box-input__calculate-parameters" @click="submit()">Рассчитать параметры</button>
+    {{error_message}}
   </section>
 </template>
 
@@ -34,9 +35,15 @@
 import {mapActions} from 'vuex'
 export default {
   name: "black-box-input.vue",
-  methods: mapActions(['calculateParametersClicked']),
+  methods: {
+    ...mapActions(['calculateParametersClicked']),
+    async submit() {
+      this.error_message = await this.calculateParametersClicked(this.input_data)
+    }
+  },
   data() {
     return {
+      error_message: '',
       input_data: {
         lot_cost: {
           cheap: '',
