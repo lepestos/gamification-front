@@ -18,6 +18,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - ./.env.dev.db
+  front:
+    build: ./bobromania
+    ports:
+      - 8080:8080
+    volumes:
+      - ./bobromania:/app
 
 volumes:
   postgres_data:
