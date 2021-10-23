@@ -22,7 +22,7 @@ class BlackBoxSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BlackBox
-        fields = ('name', 'url', 'items',)
+        fields = ('name', 'price', 'url', 'items',)
 
 
 class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
@@ -36,10 +36,11 @@ class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BlackBox
-        fields = ('name', 'products', 'amounts',)
+        fields = ('name', 'price', 'products', 'amounts',)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
+        instance.price = validated_data.get('price', instance.price)
         products = validated_data.get('products', instance.products)
         amounts = validated_data.get('amounts', instance.probabilities)
         instance.items.all().delete()
@@ -52,17 +53,17 @@ class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CalculateSerializer(serializers.Serializer):
-    prices = serializers.ListField(
+    lot_cost = serializers.DictField(
         child=serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2),
-        min_length=3, max_length=3
     )
-    max_count_costly = serializers.IntegerField(min_value=0)
-    profit = serializers.DecimalField(
+    costly_amount = serializers.IntegerField(min_value=0)
+    rentability = serializers.DecimalField(
         required=False, min_value=0, max_value=1, max_digits=3, decimal_places=2
     )
     loyalty = serializers.DecimalField(
         required=False, min_value=0, max_value=1, max_digits=3, decimal_places=2
     )
+    black_box_cost = serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2)
 
 
 class MockOpenSerializer(serializers.Serializer):

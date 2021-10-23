@@ -68,10 +68,11 @@ class BlackBoxTest(APITestCase):
         cls.data = {
             'name': 'Box',
             'products': pks,
-            'amounts': [10, 30, 70]
+            'amounts': [10, 30, 70],
+            'price': 2000
         }
         cls.amounts = {
-            f'Product #{i}': amount for i, amount in zip(range(3), [10,30,70])
+            f'Product #{i}': amount for i, amount in zip(range(3), [10, 30, 70])
         }
 
     def tearDown(self):
@@ -84,6 +85,7 @@ class BlackBoxTest(APITestCase):
         bb = BlackBox.objects.get(name='Box')
         for item in bb.items.all():
             self.assertEqual(item.amount, self.amounts[item.product.name])
+        self.assertEqual(bb.price, 2000)
 
     def test_delete(self):
         response = self.client.post(reverse('blackbox-list'), data=self.data)
@@ -102,6 +104,7 @@ class BlackBoxTest(APITestCase):
         data = response.json()
         self.assertEqual({item['product']['name'] for item in data['items']},
                          {f'Product #{i}' for i in range(3)})
+        self.assertEqual(data['price'], 2000)
 
     def test_put(self):
         self.client.post(reverse('blackbox-list'), data=self.data)
@@ -126,19 +129,60 @@ class BlackBoxTest(APITestCase):
             self.assertEqual(item.product.price, 2000)
         self.assertEqual(BlackBox.objects.count(), 1)
         self.assertEqual(BlackBoxItem.objects.count(), 3)
+        self.assertEqual(bb.price, 2000)
 
 
 class CalculateTest(APITestCase):
     def test_calculate(self):
         data = {
-            'prices': [50, 30, 20],
-            'max_count_costly': 10,
-            'profit': 0.1,
-            'loyalty': 0.7,
+            'lot_cost': {
+                'costly': 100,
+                'middle': 50,
+                'cheap': 20
+            },
+            'costly_amount': 10,
+            'rentability': 0.2,
+            'loyalty': 0.6,
+            'black_box_cost': 0
         }
-        response = self.client.post(reverse('blackbox-list') + 'calculate/', data)
+        response = self.client.post(reverse('blackbox-list') + 'calculate/', data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list(response.data['amounts']), [10, 10, 9])
+        exp_amounts = {
+            'costly': 10,
+            'middle': 14,
+            'cheap': 16
+        }
+        exp_probabilities = {
+            'costly': 0.257,
+            'middle': 0.343,
+            'cheap': 0.4
+        }
+        self.assertEqual(response.data['amounts'], exp_amounts)
+        for key in exp_probabilities:
+            self.assertLess(abs(response.data['probabilities'][key] - exp_probabilities[key]), 1e-2)
+        self.assertEqual(response.data['black_box_cost']['cur'], 61.0)
+        self.assertEqual(response.data['black_box_cost']['max'], 81.6)
+        self.assertEqual(response.data['black_box_cost']['min'], 45.6)
+
+        data['black_box_cost'] = 50
+        response = self.client.post(reverse('blackbox-list') + 'calculate/', data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        exp_amounts = {
+            'costly': 10,
+            'middle': 72,
+            'cheap': 55
+        }
+        exp_probabilities = {
+            'costly': 0.073,
+            'middle': 0.527,
+            'cheap': 0.4
+        }
+        self.assertEqual(response.data['amounts'], exp_amounts)
+        for key in exp_probabilities:
+            self.assertLess(abs(response.data['probabilities'][key] - exp_probabilities[key]), 1e-2)
+        self.assertEqual(response.data['black_box_cost']['cur'], 50)
+        self.assertEqual(response.data['black_box_cost']['max'], 81.6)
+        self.assertEqual(response.data['black_box_cost']['min'], 45.6)
 
 
 class MockOpenTest(APITestCase):
@@ -154,7 +198,7 @@ class MockOpenTest(APITestCase):
                                                price=1000) for i in range(3)]
         for product in cls.products:
             product.save()
-        cls.bb_1 = BlackBox.objects.create(name='Box 1')
+        cls.bb_1 = BlackBox.objects.create(name='Box 1', price=2000)
         amounts = [1, 1, 1]
         cls.items_1 = [BlackBoxItem.objects.create(
             black_box=cls.bb_1, product=product, amount=amount
@@ -163,7 +207,7 @@ class MockOpenTest(APITestCase):
             item.save()
         cls.bb_1.save()
 
-        cls.bb_2 = BlackBox.objects.create(name='Box 2')
+        cls.bb_2 = BlackBox.objects.create(name='Box 2', price=2000)
         amounts = [10, 20, 30]
         cls.items_2 = [BlackBoxItem.objects.create(
             black_box=cls.bb_2, product=product, amount=amount

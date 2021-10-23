@@ -19,7 +19,7 @@ base_url: "localhost:8000/api/v1"
         body: {
             "name": String,
             "products": [id_1, id_2, id_3],
-            "probabilities": [prob_1, prob_2, prob_3]
+            "amounts": [am_1, am_2, am_3]
         }
 
 /black-box/:id
@@ -35,14 +35,22 @@ base_url: "localhost:8000/api/v1"
 /black-box/calculate
     POST: расчитать оптимальную модель коробки
         body: {
-            "prices": [pr_1, pr_2, pr_3],
+            "prices": [pr_1, pr_2, pr_3], // pr_1 - самый дорогой
             "max_count_costly": Integer,
             "profit": Decimal, // десятичная дробь, не проценты!
             "loyalty": Decimal // десятичная дробь, не проценты!
         }
+        body: {
+            lot_cost: {"cheap": float, "middle": float, "costly": float},
+            loyalty: float, // десятичная дробь, не проценты!
+            rentability: float, // десятичная дробь, не проценты!
+            costly_amount: int,
+            black_box_cost: float
+        }
         response: {
-            probabilities: [prob_1, prob_2, prob_3],
-            amounts: [a_1, a_2, a_3]
+            probabilities: {"cheap": float, "middle": float, "costly": float},
+            amounts: {"cheap": int, "middle": int, "costly": int},
+            black_box_cost: {"min": float, "cur": float, "max": float}
         }
 
 /black-box/:id/mock_open

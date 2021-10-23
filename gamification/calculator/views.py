@@ -6,7 +6,7 @@ from .models import Product, BlackBoxItem, BlackBox
 from .serializers import (ProductSerializer, BlackBoxItemSerializer,
                           BlackBoxSerializer, BlackBoxCreateSerializer,
                           CalculateSerializer, MockOpenSerializer)
-from .box import Box
+from .box import Box, convert_to_dict
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -35,7 +35,8 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         products = serializer.data['products']
         amounts = serializer.data['amounts']
-        box = BlackBox.objects.create(name=serializer.data['name'])
+        price = serializer.data['price']
+        box = BlackBox.objects.create(name=serializer.data['name'], price=price)
         for pk, am in zip(products, amounts):
             product = Product.objects.get(pk=pk)
             item = BlackBoxItem.objects.create(product=product, black_box=box,
@@ -49,8 +50,13 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             box = Box(**serializer.data)
             data = {
-                'probabilities': box.probabilities,
-                'amounts': box.amounts
+                'probabilities': convert_to_dict(box.probabilities),
+                'amounts': convert_to_dict(box.amounts),
+                'black_box_cost': {
+                    'cur': box.ticket_price,
+                    'max': box.get_max_ticket_price(),
+                    'min': box.get_min_ticket_price()
+                }
             }
             return Response(data)
 
