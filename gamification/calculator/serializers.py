@@ -53,17 +53,17 @@ class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CalculateSerializer(serializers.Serializer):
-    prices = serializers.ListField(
+    lot_cost = serializers.DictField(
         child=serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2),
-        min_length=3, max_length=3
     )
-    max_count_costly = serializers.IntegerField(min_value=0)
-    profit = serializers.DecimalField(
+    costly_amount = serializers.IntegerField(min_value=0)
+    rentability = serializers.DecimalField(
         required=False, min_value=0, max_value=1, max_digits=3, decimal_places=2
     )
     loyalty = serializers.DecimalField(
         required=False, min_value=0, max_value=1, max_digits=3, decimal_places=2
     )
+    black_box_cost = serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2)
 
 
 class MockOpenSerializer(serializers.Serializer):

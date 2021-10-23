@@ -135,15 +135,54 @@ class BlackBoxTest(APITestCase):
 class CalculateTest(APITestCase):
     def test_calculate(self):
         data = {
-            'prices': [50, 30, 20],
-            'max_count_costly': 10,
-            'profit': 0.1,
-            'loyalty': 0.7,
+            'lot_cost': {
+                'costly': 100,
+                'middle': 50,
+                'cheap': 20
+            },
+            'costly_amount': 10,
+            'rentability': 0.2,
+            'loyalty': 0.6,
+            'black_box_cost': 0
         }
-        response = self.client.post(reverse('blackbox-list') + 'calculate/', data)
+        response = self.client.post(reverse('blackbox-list') + 'calculate/', data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list(response.data['amounts']), [10, 10, 9])
-        self.assertEqual(response.data['black_box_cost'], 36.97)
+        exp_amounts = {
+            'costly': 10,
+            'middle': 14,
+            'cheap': 16
+        }
+        exp_probabilities = {
+            'costly': 0.257,
+            'middle': 0.343,
+            'cheap': 0.4
+        }
+        self.assertEqual(response.data['amounts'], exp_amounts)
+        for key in exp_probabilities:
+            self.assertLess(abs(response.data['probabilities'][key] - exp_probabilities[key]), 1e-2)
+        self.assertEqual(response.data['black_box_cost']['cur'], 61.0)
+        self.assertEqual(response.data['black_box_cost']['max'], 81.6)
+        self.assertEqual(response.data['black_box_cost']['min'], 45.6)
+
+        data['black_box_cost'] = 50
+        response = self.client.post(reverse('blackbox-list') + 'calculate/', data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        exp_amounts = {
+            'costly': 10,
+            'middle': 72,
+            'cheap': 55
+        }
+        exp_probabilities = {
+            'costly': 0.073,
+            'middle': 0.527,
+            'cheap': 0.4
+        }
+        self.assertEqual(response.data['amounts'], exp_amounts)
+        for key in exp_probabilities:
+            self.assertLess(abs(response.data['probabilities'][key] - exp_probabilities[key]), 1e-2)
+        self.assertEqual(response.data['black_box_cost']['cur'], 50)
+        self.assertEqual(response.data['black_box_cost']['max'], 81.6)
+        self.assertEqual(response.data['black_box_cost']['min'], 45.6)
 
 
 class MockOpenTest(APITestCase):

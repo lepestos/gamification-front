@@ -40,9 +40,17 @@ base_url: "localhost:8000/api/v1"
             "profit": Decimal, // десятичная дробь, не проценты!
             "loyalty": Decimal // десятичная дробь, не проценты!
         }
+        body: {
+            lot_cost: {"cheap": float, "middle": float, "costly": float},
+            loyalty: float, // десятичная дробь, не проценты!
+            rentability: float, // десятичная дробь, не проценты!
+            costly_amount: int,
+            black_box_cost: float
+        }
         response: {
-            probabilities: [prob_1, prob_2, prob_3],
-            amounts: [a_1, a_2, a_3]
+            probabilities: {"cheap": float, "middle": float, "costly": float},
+            amounts: {"cheap": int, "middle": int, "costly": int},
+            black_box_cost: {"min": float, "cur": float, "max": float}
         }
 
 /black-box/:id/mock_open
