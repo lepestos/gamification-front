@@ -52,17 +52,21 @@ class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
         return instance
 
 
+class LotCostSerializer(serializers.Serializer):
+    costly = serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2)
+    middle = serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2)
+    cheap = serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2)
+
+
 class CalculateSerializer(serializers.Serializer):
-    lot_cost = serializers.DictField(
-        child=serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2),
-    )
+    lot_cost = LotCostSerializer(help_text='{costly: float, middle: float, cheap: float}')
     costly_amount = serializers.IntegerField(min_value=0)
-    rentability = serializers.DecimalField(
-        required=False, min_value=0, max_value=1, max_digits=3, decimal_places=2
-    )
-    loyalty = serializers.DecimalField(
-        required=False, min_value=0, max_value=1, max_digits=3, decimal_places=2
-    )
+    rentability = serializers.DecimalField(required=False, min_value=0, max_value=1,
+                                           max_digits=3, decimal_places=2,
+                                           help_text="Десятичная дробь, не проценты!")
+    loyalty = serializers.DecimalField(required=False, min_value=0, max_value=1,
+                                       max_digits=3, decimal_places=2,
+                                       help_text="Десятичная дробь, не проценты!")
     black_box_cost = serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2)
 
 

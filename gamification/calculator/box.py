@@ -45,6 +45,9 @@ class Box:
         p1, p2, p3 = self.probabilities
         return a1, ceil(a1 * p2 / p1), ceil(a1 * p3 / p1)
 
+    def get_rounded_ticket_price(self):
+        return round(self.ticket_price, -1)
+
 
 def convert_to_dict(lst: List) -> Dict:
     return {key: round(value, 3) for key, value in zip(['costly', 'middle', 'cheap'], lst)}

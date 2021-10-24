@@ -160,7 +160,7 @@ class CalculateTest(APITestCase):
         self.assertEqual(response.data['amounts'], exp_amounts)
         for key in exp_probabilities:
             self.assertLess(abs(response.data['probabilities'][key] - exp_probabilities[key]), 1e-2)
-        self.assertEqual(response.data['black_box_cost']['cur'], 61.0)
+        self.assertEqual(response.data['black_box_cost']['cur'], 60)
         self.assertEqual(response.data['black_box_cost']['max'], 81.6)
         self.assertEqual(response.data['black_box_cost']['min'], 45.6)
 
