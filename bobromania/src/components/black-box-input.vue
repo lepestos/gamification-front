@@ -1,45 +1,48 @@
 <template>
   <section class="black-box-input">
-    <div class="black-box-input__wrapper">
-      <div class="black-box-input__left">
-        <div class="black-box-input_lot-costs lot-costs">
-          <h2>Стоимость лотов</h2>
-          <div class="lot-costs__inputs">
-            <input type="number"  class="lot-costs__cheap" placeholder="Дешёвый" v-model="input_data.lot_cost.cheap">
-            <input type="number" class="lot-costs__middle" placeholder="Средний" v-model="input_data.lot_cost.middle">
-            <input type="number" class="lot-costs__costly" placeholder="Дорогой" v-model="input_data.lot_cost.costly">
+    <form action="" @submit.prevent="this.calculateParametersClicked(input_data)">
+      <div class="black-box-input__wrapper">
+        <div class="black-box-input__left">
+          <div class="black-box-input_lot-costs lot-costs">
+            <h2>Стоимость лотов</h2>
+            <div class="lot-costs__inputs">
+              <input type="number"  class="lot-costs__cheap" placeholder="Дешёвый" v-model="input_data.lot_cost.cheap" min="0" required :disabled="this.active_half() === 'bottom'">
+              <input type="number" class="lot-costs__middle" placeholder="Средний" v-model="input_data.lot_cost.middle" min="0" required :disabled="this.active_half() === 'bottom'">
+              <input type="number" class="lot-costs__costly" placeholder="Дорогой" v-model="input_data.lot_cost.costly" min="0" required :disabled="this.active_half() === 'bottom'">
+            </div>
+          </div>
+          <button class="black-box-input__choose-from-showcase">Выбрать лоты с витрины</button>
+        </div>
+        <div class="black-box-input__right">
+          <div class="black-box-input__constants constants">
+            <h2>Расчётные константы</h2>
+            <div class="constants__inputs">
+              <span class="constants__span_two-lines">Целевая лояльность:</span>
+              <input type="number" v-model="input_data.loyalty" min="-0.01" max="1" step="0.01" required :disabled="this.active_half() === 'bottom'">
+              <span class="constants__span_one-line">Рентабельность:</span>
+              <input type="number" v-model="input_data.rentability" min="-0.01" max="1" step="0.01" required :disabled="this.active_half() === 'bottom'">
+            </div>
+          </div>
+          <div class="black-box-input__costly-amount costly-amount">
+            <h2>Количество дорогих лотов</h2>
+            <input type="number" placeholder="Введите количество" v-model="input_data.costly_amount" min="0" required :disabled="this.active_half() === 'bottom'">
           </div>
         </div>
-        <button class="black-box-input__choose-from-showcase">Выбрать лоты с витрины</button>
       </div>
-      <div class="black-box-input__right">
-        <div class="black-box-input__constants constants">
-          <h2>Расчётные константы</h2>
-          <div class="constants__inputs">
-            <span class="constants__span_two-lines">Целевая лояльность:</span><input type="number" v-model="input_data.loyality">
-            <span class="constants__span_one-line">Рентабельность:</span><input type="number" v-model="input_data.rentability">
-          </div>
-        </div>
-        <div class="black-box-input__costly-amount costly-amount">
-          <h2>Количество дорогих лотов</h2>
-          <input type="number" placeholder="Введите количество" v-model="input_data.costly_amount">
-        </div>
-      </div>
-    </div>
-    <button class="black-box-input__calculate-parameters" @click="submit()">Рассчитать параметры</button>
-    {{error_message}}
+      <button type="submit" class="black-box-input__calculate-parameters">Рассчитать параметры</button>
+    </form>
   </section>
 </template>
 
 <script>
-import {mapActions} from 'vuex'
+import {mapActions} from 'vuex';
+import {mapGetters} from "vuex";
+
 export default {
   name: "black-box-input.vue",
   methods: {
     ...mapActions(['calculateParametersClicked']),
-    async submit() {
-      this.error_message = await this.calculateParametersClicked(this.input_data)
-    }
+    ...mapGetters(['active_half'])
   },
   data() {
     return {
@@ -50,7 +53,7 @@ export default {
           middle: '',
           costly: '',
         },
-        loyality: 0.6,
+        loyalty: 0.6,
         rentability: 0.15,
         costly_amount: '',
       }

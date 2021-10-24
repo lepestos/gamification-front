@@ -6,7 +6,7 @@ export default {
             middle: '',
             costly: '',
         },
-        loyality: '',
+        loyalty: '',
         rentability: '',
         amounts: {
             cheap: '',
@@ -19,9 +19,9 @@ export default {
             costly: '',
         },
         black_box_cost: {
-            min: '',
-            cur: '',
-            max: ''
+            min: 0,
+            cur: 0,
+            max: 0
         }
     },
     mutations: {
@@ -31,8 +31,8 @@ export default {
         updateCost(state, value) {
             state.lot_cost = value;
         },
-        updateLoyality(state, value) {
-            state.loyality = value;
+        updateLoyalty(state, value) {
+            state.loyalty = value;
         },
         updateRentability(state, value) {
             state.rentability = value;
@@ -50,30 +50,18 @@ export default {
            state.black_box_cost = value;
         }
     },
-    actions: {
-        async calculateParametersClicked(ctx, input_data) {
-            if (input_data.lot_cost.cheap === '' || input_data.lot_cost.middle === '' || input_data.lot_cost.costly === '' ) {
-                return 'цены лотов не могут быть пустыми'
-            }
-            ctx.commit('updateCost', input_data.lot_cost)
-            ctx.commit('updateLoyality', input_data.loyality)
-            ctx.commit('updateRentability', input_data.rentability)
-            ctx.commit('updateCostlyAmount', input_data.costly_amount)
-            ctx.commit('updateActiveHalf', 'bottom')
-            let response = {
-                probabilities: {cheap: 0.6, middle: 0.3, costly: 0.6},
-                amounts: {cheap: 600, middle: 300, costly: 600},
-                black_box_cost: {min: 500, cur: 1000, max:1500}
-            }
-            ctx.commit('updatePercents', response.probabilities)
-            ctx.commit('updateAmounts', response.amounts)
-            ctx.commit('updateBlackBoxCost', response.black_box_cost)
-            return ''
-        }
-    },
     getters: {
         active_half(state) {
             return state.active_half;
+        },
+        input_data(state) {
+            return {
+                lot_cost: state.lot_cost,
+                loyalty: state.loyalty,
+                rentability: state.rentability,
+                costly_amount: state.amounts.costly,
+                black_box_cost: state.black_box_cost.cur,
+            }
         },
         output_data(state) {
             return {
@@ -81,6 +69,45 @@ export default {
                 amounts: state.amounts,
                 black_box_cost: state.black_box_cost,
             }
+        },
+        recalculate_data(state) {
+            return {
+                loyalty: state.loyalty,
+                rentability: state.rentability,
+                black_box_cost: state.black_box_cost,
+            }
+        }
+    },
+    actions: {
+        async calculateParametersClicked(ctx,  form_input_data) {
+            ctx.commit('updateCost', form_input_data.lot_cost)
+            ctx.commit('updateLoyalty', form_input_data.loyalty)
+            ctx.commit('updateRentability', form_input_data.rentability)
+            ctx.commit('updateCostlyAmount', form_input_data.costly_amount)
+            ctx.commit('updateActiveHalf', 'bottom')
+
+            console.log(ctx.getters.input_data)
+            const url = "http://localhost:8000/api/v1/black-box/calculate/";
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ctx.getters.input_data)
+            });
+            if (response.ok) {
+                const json = await response.json();
+                console.log(json)
+                ctx.commit('updatePercents', json.probabilities)
+                ctx.commit('updateAmounts', json.amounts)
+                ctx.commit('updateBlackBoxCost', json.black_box_cost)
+            } else {
+                console.log("Ошибка HTTP: " + response.status);
+                const json = await response.json();
+                console.log(json);
+            }
+
         }
     }
 }
