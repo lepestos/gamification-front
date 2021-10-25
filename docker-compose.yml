@@ -20,6 +20,7 @@ services:
       - ./.env.dev.db
   front:
     build: ./bobromania
+    command: npm run serve
     ports:
       - 8080:8080
     volumes:
