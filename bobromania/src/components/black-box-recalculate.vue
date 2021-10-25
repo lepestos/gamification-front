@@ -19,9 +19,11 @@
                v-model="recalc_data.black_box_cost.cur" step="1">
         <input type="range"
                class="styled-slider slider-progress"
+               name="price"
                v-bind:min="recalc_data.black_box_cost.min"
                v-bind:max="recalc_data.black_box_cost.max"
-               v-model="recalc_data.black_box_cost.cur" step="1">
+               step="10"
+               v-model="recalc_data.black_box_cost.cur">
       </div>
       <div class="black-box-recalculate__button-recalculate button-recalculate">
         <button type="submit">Перерасчёт параметров</button>
@@ -56,12 +58,18 @@ export default {
       await this.recalculateParametersClicked(this.recalc_data)
     }
   },
-  mounted() {
+  beforeMount() {
     this.recalc_data = this.recalculate_data()
+  },
+  mounted() {
+    this.recalc_data.black_box_cost.cur++
+    this.recalc_data.black_box_cost.cur-- 
+  },
+  updated() {
     for (let e of document.querySelectorAll('input[type="range"].slider-progress')) {
-      e.style.setProperty('--value', e.value);
-      e.style.setProperty('--min', e.min);
-      e.style.setProperty('--max', e.max);
+      e.style.setProperty('--value', e.name === 'price' ? this.recalc_data.black_box_cost.cur : e.value);
+      e.style.setProperty('--min', e.name === 'price' ? this.recalc_data.black_box_cost.min : e.min);
+      e.style.setProperty('--max', e.name === 'price' ? this.recalc_data.black_box_cost.max : e.max);
       e.addEventListener('input', () => e.style.setProperty('--value', e.value));
     }
   }
