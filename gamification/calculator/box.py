@@ -1,4 +1,4 @@
-from math import sqrt, ceil
+from math import sqrt, ceil, floor
 from typing import Dict, List
 
 
@@ -14,10 +14,23 @@ class Box:
         self.max_count_costly = costly_amount
         self.profit = float(rentability)
         self.loyalty = float(loyalty)
-        self.ticket_price = float(black_box_cost)\
-                            or round(sqrt(self.get_max_ticket_price() * self.get_min_ticket_price()), 2)
+        self.set_ticket_price(black_box_cost)
         self.probabilities = self.get_probabilities()
         self.amounts = self.get_amounts()
+
+    def set_ticket_price(self, black_box_cost):
+        max_price = self.get_max_ticket_price()
+        min_price = self.get_min_ticket_price()
+        if black_box_cost == 0 or black_box_cost < min_price or black_box_cost > max_price:
+            self.ticket_price = round(sqrt(self.get_max_ticket_price() * self.get_min_ticket_price()), 2)
+            if black_box_cost == 0:
+                self.message = ''
+            else:
+                self.message = f'Цена должна лежать в интервале от ' \
+                               f'{ceil(min_price / 10) * 10} до {floor(max_price / 10) * 10}.'
+        else:
+            self.ticket_price = float(black_box_cost)
+            self.message = ''
 
     def get_probabilities(self):
         p3 = 1 - self.loyalty
@@ -45,6 +58,9 @@ class Box:
         p1, p2, p3 = self.probabilities
         return a1, ceil(a1 * p2 / p1), ceil(a1 * p3 / p1)
 
+    def get_rounded_ticket_price(self):
+        return ceil(self.ticket_price / 10) * 10
+
 
 def convert_to_dict(lst: List) -> Dict:
     return {key: round(value, 3) for key, value in zip(['costly', 'middle', 'cheap'], lst)}
@@ -52,11 +68,11 @@ def convert_to_dict(lst: List) -> Dict:
 
 if __name__ == '__main__':
     prices = {
-        'costly': 100,
-        'middle': 50,
-        'cheap': 20,
+        'costly': 1000,
+        'middle': 300,
+        'cheap': 100,
     }
-    b = Box(prices, costly_amount=10, black_box_cost=50, rentability=0.2, loyalty=0.6)
+    b = Box(prices, costly_amount=100, black_box_cost=0, rentability=0.2, loyalty=0.6)
     print(b.probabilities)
     print(b.amounts)
     print(b.ticket_price)

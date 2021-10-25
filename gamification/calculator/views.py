@@ -53,10 +53,11 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
                 'probabilities': convert_to_dict(box.probabilities),
                 'amounts': convert_to_dict(box.amounts),
                 'black_box_cost': {
-                    'cur': box.ticket_price,
+                    'cur': box.get_rounded_ticket_price(),
                     'max': box.get_max_ticket_price(),
                     'min': box.get_min_ticket_price()
-                }
+                },
+                'message': box.message,
             }
             return Response(data)
 
