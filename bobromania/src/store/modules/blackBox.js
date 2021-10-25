@@ -84,7 +84,6 @@ export default {
             ctx.commit('updateLoyalty', form_input_data.loyalty)
             ctx.commit('updateRentability', form_input_data.rentability)
             ctx.commit('updateCostlyAmount', form_input_data.costly_amount)
-            ctx.commit('updateActiveHalf', 'bottom')
 
             console.log(ctx.getters.input_data)
             const url = "http://localhost:8000/api/v1/black-box/calculate/";
@@ -107,7 +106,7 @@ export default {
                 const json = await response.json();
                 console.log(json);
             }
-
+            ctx.commit('updateActiveHalf', 'bottom')
         }
     }
 }
