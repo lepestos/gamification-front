@@ -71,6 +71,9 @@ export default {
             }
         },
         recalculate_data(state) {
+            state.black_box_cost.min = Math.round(state.black_box_cost.min)
+            state.black_box_cost.cur = Math.round(state.black_box_cost.cur)
+            state.black_box_cost.mzx = Math.round(state.black_box_cost.max)
             return {
                 loyalty: state.loyalty,
                 rentability: state.rentability,
@@ -79,13 +82,7 @@ export default {
         }
     },
     actions: {
-        async calculateParametersClicked(ctx,  form_input_data) {
-            ctx.commit('updateCost', form_input_data.lot_cost)
-            ctx.commit('updateLoyalty', form_input_data.loyalty)
-            ctx.commit('updateRentability', form_input_data.rentability)
-            ctx.commit('updateCostlyAmount', form_input_data.costly_amount)
-
-            console.log(ctx.getters.input_data)
+        async sendRequest(ctx) {
             const url = "http://localhost:8000/api/v1/black-box/calculate/";
             const response = await fetch(url, {
                 method: 'POST',
@@ -106,7 +103,23 @@ export default {
                 const json = await response.json();
                 console.log(json);
             }
+        },
+        async calculateParametersClicked(ctx,  form_input_data) {
+            ctx.commit('updateCost', form_input_data.lot_cost)
+            ctx.commit('updateLoyalty', form_input_data.loyalty)
+            ctx.commit('updateRentability', form_input_data.rentability)
+            ctx.commit('updateCostlyAmount', form_input_data.costly_amount)
+
+            await this.dispatch('sendRequest', ctx)
+
             ctx.commit('updateActiveHalf', 'bottom')
+        },
+        async recalculateParametersClicked(ctx,  form_recalc_data) {
+            ctx.commit('updateLoyalty', form_recalc_data.loyalty)
+            ctx.commit('updateRentability', form_recalc_data.rentability)
+            ctx.commit('updateBlackBoxCost', form_recalc_data.black_box_cost)
+
+            await this.dispatch('sendRequest', ctx)
         }
     }
 }
