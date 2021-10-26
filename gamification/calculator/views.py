@@ -49,13 +49,19 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             box = Box(**serializer.data)
+            if box.get_rounded_max_price() < box.get_rounded_min_price():
+                data = {
+                    'message': 'Цены дорогого и среднего лотов '
+                               'отличаются на слишком маленькую величину.'
+                }
+                return Response(data, status=status.HTTP_400_BAD_REQUEST)
             data = {
                 'probabilities': convert_to_dict(box.probabilities),
                 'amounts': convert_to_dict(box.amounts),
                 'black_box_cost': {
                     'cur': box.get_rounded_ticket_price(),
-                    'max': box.get_max_ticket_price(),
-                    'min': box.get_min_ticket_price()
+                    'max': box.get_rounded_max_price(),
+                    'min': box.get_rounded_min_price()
                 },
                 'message': box.message,
             }
