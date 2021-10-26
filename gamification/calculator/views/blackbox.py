@@ -2,21 +2,10 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Product, BlackBoxItem, BlackBox
-from .serializers import (ProductSerializer, BlackBoxItemSerializer,
-                          BlackBoxSerializer, BlackBoxCreateSerializer,
-                          CalculateSerializer, MockOpenSerializer)
-from .box import Box, convert_to_dict
-
-
-class ProductViewSet(viewsets.ModelViewSet):
-    serializer_class = ProductSerializer
-    queryset = Product.objects.all()
-
-
-class BlackBoxItemViewSet(viewsets.ModelViewSet):
-    serializer_class = BlackBoxItemSerializer
-    queryset = BlackBoxItem.objects.all()
+from calculator.box import Box
+from calculator.models import BlackBox, Product, BlackBoxItem
+from calculator.serializers import BlackBoxSerializer, BlackBoxCreateSerializer, CalculateSerializer, \
+    MockOpenSerializer
 
 
 class BlackBoxViewSet(viewsets.ModelViewSet):
@@ -39,8 +28,7 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
         box = BlackBox.objects.create(name=serializer.data['name'], price=price)
         for pk, am in zip(products, amounts):
             product = Product.objects.get(pk=pk)
-            item = BlackBoxItem.objects.create(product=product, black_box=box,
-                                                amount=am)
+            item = BlackBoxItem.objects.create(product=product, black_box=box, amount=am)
             item.save()
         box.save()
 
@@ -49,24 +37,11 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             box = Box(**serializer.data)
-            if box.get_rounded_max_price() < box.get_rounded_min_price():
-                data = {
-                    'message': 'Цены дорогого и среднего лотов '
-                               'отличаются на слишком маленькую величину.'
-                }
+            data = box.to_json()
+            if data['success']:
+                return Response(data)
+            else:
                 return Response(data, status=status.HTTP_400_BAD_REQUEST)
-            data = {
-                'probabilities': convert_to_dict(box.probabilities),
-                'amounts': convert_to_dict(box.amounts),
-                'black_box_cost': {
-                    'cur': box.get_rounded_ticket_price(),
-                    'max': box.get_rounded_max_price(),
-                    'min': box.get_rounded_min_price()
-                },
-                'message': box.message,
-            }
-            return Response(data)
-
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
 

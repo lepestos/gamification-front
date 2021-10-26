@@ -1,15 +1,14 @@
 from math import sqrt, ceil, floor
-from typing import Dict, List
+from typing import Dict, List, Iterable
 
-
-PROFIT= 0.15
+PROFIT = 0.15
 LOYALTY = 0.6
 
 
 class Box:
     def __init__(self, lot_cost: Dict[str, float],  costly_amount: int,
-                 black_box_cost: float, rentability: float=PROFIT,
-                 loyalty: float=LOYALTY):
+                 black_box_cost: float, rentability: float = PROFIT,
+                 loyalty: float = LOYALTY):
         self.prices = [float(lot_cost[category]) for category in ['costly', 'middle', 'cheap']]
         self.max_count_costly = costly_amount
         self.profit = float(rentability)
@@ -19,6 +18,27 @@ class Box:
         self.set_ticket_price(black_box_cost)
         self.probabilities = self.get_probabilities()
         self.amounts = self.get_amounts()
+
+    def to_json(self):
+        if self.get_rounded_max_price() < self.get_rounded_min_price():
+            data = {
+                'message': 'Цены дорогого и среднего лотов '
+                           'отличаются на слишком маленькую величину.',
+                'success': False
+            }
+        else:
+            data = {
+                'probabilities': convert_to_dict(self.probabilities),
+                'amounts': convert_to_dict(self.amounts),
+                'black_box_cost': {
+                    'cur': self.get_rounded_ticket_price(),
+                    'max': self.get_rounded_max_price(),
+                    'min': self.get_rounded_min_price()
+                },
+                'message': self.message,
+                'success': True
+            }
+        return data
 
     def set_ticket_price(self, black_box_cost):
         if black_box_cost == 0 or black_box_cost < self.min_price or black_box_cost > self.max_price:
@@ -77,8 +97,8 @@ class Box:
         return floor(price / 10) * 10
 
 
-def convert_to_dict(lst: List) -> Dict:
-    return {key: round(value, 3) for key, value in zip(['costly', 'middle', 'cheap'], lst)}
+def convert_to_dict(it: Iterable) -> Dict:
+    return {key: round(value, 3) for key, value in zip(['costly', 'middle', 'cheap'], it)}
 
 
 if __name__ == '__main__':
