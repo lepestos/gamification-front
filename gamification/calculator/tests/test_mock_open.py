@@ -20,23 +20,20 @@ class MockOpenTest(APITestCase):
                                                price=1000) for i in range(3)]
         for product in cls.products:
             product.save()
-        cls.bb_1 = BlackBox.objects.create(name='Box 1', price=2000)
-        amounts = [1, 1, 1]
-        cls.items_1 = [BlackBoxItem.objects.create(
-            black_box=cls.bb_1, product=product, amount=amount
-        ) for product, amount in zip(cls.products, amounts)]
-        for item in cls.items_1:
-            item.save()
-        cls.bb_1.save()
 
-        cls.bb_2 = BlackBox.objects.create(name='Box 2', price=2000)
-        amounts = [10, 20, 30]
-        cls.items_2 = [BlackBoxItem.objects.create(
-            black_box=cls.bb_2, product=product, amount=amount
-        ) for product, amount in zip(cls.products, amounts)]
-        for item in cls.items_2:
+        cls.bb_1 = cls.create_bb('Box 1', 2000, cls.products, [1, 1, 1])
+        cls.bb_2 = cls.create_bb('Box 2', 2000, cls.products, [10, 20, 30])
+
+    @staticmethod
+    def create_bb(name, price, products, amounts):
+        bb = BlackBox.objects.create(name=name, price=price)
+        items = [BlackBoxItem.objects.create(
+            black_box=bb, product=product, amount=amount
+        ) for product, amount in zip(products, amounts)]
+        for item in items:
             item.save()
-        cls.bb_2.save()
+        bb.save()
+        return bb
 
     def test_mock_open_small(self):
         res = self.bb_1.mock_open(3)

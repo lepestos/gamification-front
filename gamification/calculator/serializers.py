@@ -14,7 +14,7 @@ class BlackBoxItemSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BlackBoxItem
-        fields = ('product', 'black_box', 'amount')
+        fields = ('product', 'black_box', 'amount',)
 
 
 class BlackBoxSerializer(serializers.ModelSerializer):
