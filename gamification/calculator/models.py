@@ -1,4 +1,5 @@
 from random import choices, seed
+from operator import attrgetter
 
 from django.db import models
 
@@ -9,10 +10,9 @@ seed(42)
 class Product(models.Model):
     name = models.CharField(max_length=127)
     price = models.DecimalField(max_digits=7, decimal_places=2)
-    time_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('-time_created',)
+        ordering = ('price',)
 
     def __str__(self):
         return self.name
@@ -21,22 +21,39 @@ class Product(models.Model):
 class BlackBox(models.Model):
     name = models.CharField(max_length=127)
     price = models.DecimalField(max_digits=7, decimal_places=2)
-    time_created = models.DateTimeField(auto_now_add=True)
+    loyalty = models.DecimalField(max_digits=2, decimal_places=2)
+    rentability = models.DecimalField(max_digits=2, decimal_places=2)
 
     class Meta:
-        ordering = ('-time_created',)
+        ordering = ('price',)
 
     def __str__(self):
         return self.name
 
+
     def products(self):
-        return [item.product for item in self.items.all()]
+        return [item.product for item in self.sorted_items()]
 
     def probabilities(self):
-        return [item.probability for item in self.items.all()]
+        return [item.probability for item in self.sorted_items()]
+
+    def sorted_items(self):
+        return sorted(list(self.items.all()),
+                      key=lambda item: item.product.price, reverse=True)
 
     def amounts(self):
-        return [item.amount for item in self.items.all()]
+        return [item.amount for item in self.sorted_items()]
+
+    def lot_amount(self):
+        amounts = [item.amount for item in self.sorted_items()]
+        return {key:value for key, value in zip(['costly', 'middle', 'cheap'], amounts)}
+
+    def lot_cost(self):
+        costs = [item.product.price for item in self.sorted_items()]
+        return {key:value for key, value in zip(['costly', 'middle', 'cheap'], costs)}
+
+    def max_count_costly(self):
+        return self.sorted_items()[0].amount
 
     def mock_open(self, n):
         """get an item from the box n times"""

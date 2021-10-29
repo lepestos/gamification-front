@@ -6,4 +6,4 @@ from calculator.serializers import ProductSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
-    queryset = Product.objects.all()
+    queryset = Product.objects.exclude(name='mock')

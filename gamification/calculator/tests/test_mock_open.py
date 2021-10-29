@@ -26,7 +26,7 @@ class MockOpenTest(APITestCase):
 
     @staticmethod
     def create_bb(name, price, products, amounts):
-        bb = BlackBox.objects.create(name=name, price=price)
+        bb = BlackBox.objects.create(name=name, price=price, loyalty=0.6, rentability=0.3)
         items = [BlackBoxItem.objects.create(
             black_box=bb, product=product, amount=amount
         ) for product, amount in zip(products, amounts)]

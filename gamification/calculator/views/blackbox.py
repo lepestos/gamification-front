@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from calculator.utils.box import Box
+from calculator.utils.box import Box, get_loyalty, get_rentability, convert_to_list
 from calculator.models import BlackBox, Product, BlackBoxItem
 from calculator.serializers import BlackBoxSerializer, BlackBoxCreateSerializer, CalculateSerializer, \
     MockOpenSerializer
@@ -22,15 +22,22 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def perform_create(self, serializer):
-        products = serializer.data['products']
-        amounts = serializer.data['amounts']
+        lot_cost = serializer.data['lot_cost']
+        lot_amount = serializer.data['lot_amount']
         price = serializer.data['price']
-        box = BlackBox.objects.create(name=serializer.data['name'], price=price)
-        for pk, am in zip(products, amounts):
-            product = Product.objects.get(pk=pk)
-            item = BlackBoxItem.objects.create(product=product, black_box=box, amount=am)
+        name = serializer.data['name']
+        loyalty = get_loyalty(lot_amount)
+        rentability = get_rentability(lot_amount, lot_cost, price)
+        box = BlackBox.objects.create(name=name, price=price,
+                                      loyalty=loyalty, rentability=rentability)
+        for cost, amount in zip(convert_to_list(lot_cost),
+                                convert_to_list(lot_amount)):
+            product = Product.objects.create(name='mock', price=cost)
+            product.save()
+            item = BlackBoxItem.objects.create(product=product, black_box=box, amount=amount)
             item.save()
         box.save()
+
 
     @action(detail=False, methods=['post'])
     def calculate(self, request):

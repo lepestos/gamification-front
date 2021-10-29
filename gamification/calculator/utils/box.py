@@ -1,5 +1,5 @@
 from math import sqrt, ceil, floor
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List
 
 
 PROFIT = 0.15
@@ -110,6 +110,21 @@ class Box:
 
 def convert_to_dict(it: Iterable) -> Dict:
     return {key: round(value, 3) for key, value in zip(LOT_CATEGORIES, it)}
+
+def convert_to_list(dct: Dict) -> List:
+    return [dct[cat] for cat in LOT_CATEGORIES]
+
+
+def get_loyalty(lot_amount: Dict[str, float]):
+    numerator = lot_amount['costly'] + lot_amount['middle']
+    denominator = sum(lot_amount.values())
+    return round(numerator / denominator, 2)
+
+
+def get_rentability(lot_amount, lot_cost, price):
+    total_amount = sum(lot_amount.values())
+    expected_value = sum(lot_amount[key] * lot_cost[key] for key in lot_amount) / total_amount
+    return round(price / expected_value - 1, 2)
 
 
 if __name__ == '__main__':
