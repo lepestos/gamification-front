@@ -61,8 +61,21 @@ base_url: "localhost:8000/api/v1"
 /black-box/:id/mock_open
     POST: провести n открытий коробки (база данных не изменяется)
         body: {
-            "n": Integer
+            "n": Integer // количество открытий
         }
         response: {
-            "product_names": [name_1, name_2, ... , name_n]
+            "product_categories": [cat_1, cat_2, ... , cat_n] // cat_i is one of the following: "costly", "middle", "cheap"
+        }
+
+/black-box/mock_open_unsaved
+    POST: провести n открытий коробки, заданной некоторыми хорактеристиками
+        body: {
+            "name": String,
+            "price": Decimal,
+            "lot_cost": {"cheap": Decimal, "middle": Decimal, "costly": Decimal},
+            "lot_amount": {"cheap": int, "middle": int, "costly": int}},
+            "n": Integer // количество открытий
+        }
+        response: {
+            "product_categories": [cat_1, cat_2, ... , cat_n] // cat_i is one of the following: "costly", "middle", "cheap"
         }

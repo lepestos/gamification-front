@@ -1,13 +1,7 @@
 from rest_framework import serializers
 
-from .models import Product, BlackBox, BlackBoxItem
-from .utils.box import convert_to_list, get_loyalty, get_rentability
-
-
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ('name', 'price', 'url',)
+from calculator.models import BlackBoxItem, BlackBox
+from calculator.serializers.product import ProductSerializer
 
 
 class BlackBoxItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -31,40 +25,15 @@ class LotCostSerializer(serializers.Serializer):
 
 
 class BlackBoxSerializer(serializers.ModelSerializer):
-    lot_cost = LotCostSerializer
-    lot_amount = LotAmountSerializer
-
-    class Meta:
-        model = BlackBox
-        fields = ('name', 'price', 'loyalty', 'rentability',
-                  'max_count_costly', 'lot_cost', 'lot_amount',)
-
-
-class BlackBoxCreateSerializer(serializers.HyperlinkedModelSerializer):
     lot_cost = LotCostSerializer()
     lot_amount = LotAmountSerializer()
 
     class Meta:
         model = BlackBox
-        fields = ('name', 'price', 'lot_cost', 'lot_amount')
+        fields = ('name', 'price', 'lot_cost', 'lot_amount',
+                  'loyalty', 'rentability', 'max_count_costly',)
+        read_only_fields = ('loyalty', 'rentability', 'max_count_costly',)
 
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.price = validated_data.get('price', instance.price)
-        lot_cost = validated_data.get('lot_cost', instance.lot_cost)
-        lot_amount = validated_data.get('lot_amount', instance.lot_amount)
-        instance.loyalty = get_loyalty(lot_amount)
-        instance.rentability = get_rentability(lot_amount, lot_cost, instance.price)
-        instance.items.all().delete()
-        for cost, amount in zip(convert_to_list(lot_cost),
-                                convert_to_list(lot_amount)):
-            product = Product.objects.create(name='mock', price=cost)
-            product.save()
-            item = BlackBoxItem.objects.create(product=product, black_box=instance,
-                                               amount=amount)
-            item.save()
-        instance.save()
-        return instance
 
 class CalculateSerializer(serializers.Serializer):
     lot_cost = LotCostSerializer(help_text='{costly: float, middle: float, cheap: float}')
@@ -80,3 +49,13 @@ class CalculateSerializer(serializers.Serializer):
 
 class MockOpenSerializer(serializers.Serializer):
     n = serializers.IntegerField(min_value=1)
+
+
+class MockOpenUnsavedSerializer(serializers.ModelSerializer):
+    lot_cost = LotCostSerializer()
+    lot_amount = LotAmountSerializer()
+    n = serializers.IntegerField(min_value=1)
+
+    class Meta:
+        model = BlackBox
+        fields = ('name', 'price', 'lot_cost', 'lot_amount', 'n')

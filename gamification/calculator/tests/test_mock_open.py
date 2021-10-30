@@ -1,10 +1,12 @@
 from collections import Counter
+from decimal import Decimal
 
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 
 from calculator.models import Product, BlackBox, BlackBoxItem
+from calculator.utils.box import LOT_CATEGORIES
 
 
 class MockOpenTest(APITestCase):
@@ -56,4 +58,28 @@ class MockOpenTest(APITestCase):
         response = self.client.post(reverse('blackbox-detail', args=[pk]) + 'mock_open/', data={'n': 10})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertEqual(set(data['product_names']), {f'Product #{i}' for i in range(3)})
+        self.assertEqual(set(data['product_categories']), set(LOT_CATEGORIES))
+
+    def test_rentability_is_never_negative(self):
+        products = [Product.objects.create(name=f'Product {i}', price=i*100) for i in range(1, 4)]
+        bb = self.create_bb('Box 3', 170, products, [1, 2, 3])
+        for _ in range(10):
+            res = bb.mock_open(6)
+            total_giveaway = 0
+            for i, product in enumerate(res):
+                total_giveaway += product.price
+                self.assertLessEqual(total_giveaway, Decimal((i + 1) * 170), msg=f'{i}th iteration')
+
+    def test_mock_open_unsaved_api(self):
+        data = {
+            'name': 'Box 3',
+            'price': 170,
+            'lot_cost': {'costly': 300, 'middle': 200, 'cheap': 100},
+            'lot_amount': {'costly': 1, 'middle': 2, 'cheap': 3},
+            'n': 6
+        }
+        response = self.client.post(reverse('blackbox-list') + 'mock_open_unsaved/',
+                                    data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        res = response.json()['product_categories']
+        self.assertEqual(Counter(res), Counter(data['lot_amount']))
