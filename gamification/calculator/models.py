@@ -1,5 +1,6 @@
 from random import choices, seed
-from .utils.box import get_loyalty, get_rentability, convert_to_list, LOT_CATEGORIES
+from .utils.box import get_loyalty, get_rentability,\
+    convert_to_list, convert_to_dict, LOT_CATEGORIES
 
 from django.db import models
 
@@ -21,20 +22,33 @@ class Product(models.Model):
 class BlackBox(models.Model):
     name = models.CharField(max_length=127)
     price = models.DecimalField(max_digits=7, decimal_places=2)
-    loyalty = models.DecimalField(max_digits=2, decimal_places=2)
-    rentability = models.DecimalField(max_digits=2, decimal_places=2)
+    loyalty = models.DecimalField(max_digits=3, decimal_places=2)
+    rentability = models.DecimalField(max_digits=3, decimal_places=2)
 
     class Meta:
         ordering = ('price',)
 
     @classmethod
     def from_json(cls, data, instance=None):
-        lot_cost = data['lot_cost']
+        lot_cost = data.get('lot_cost')
+        product_ids = data.get('product_ids')
+        assert (lot_cost is None) != (product_ids is None)
         lot_amount = data['lot_amount']
         price = data['price']
         name = data['name']
         loyalty = get_loyalty(lot_amount)
-        rentability = get_rentability(lot_amount, lot_cost, price)
+        if lot_cost is not None:
+            products = [Product.objects.create(name='mock', price=cost)
+                        for cost in convert_to_list(lot_cost)]
+            for product in products:
+                product.save()
+            rentability = get_rentability(lot_amount, lot_cost, price)
+        else:
+            products = [Product.objects.get(pk=pk) for pk in convert_to_list(product_ids)]
+            prices = [product.price for product in products]
+            rentability = get_rentability(lot_amount,
+                                          convert_to_dict(prices),
+                                          price)
         if instance is None:
             instance = BlackBox.objects.create(name=name, price=price,
                                                loyalty=loyalty, rentability=rentability)
@@ -44,15 +58,12 @@ class BlackBox(models.Model):
             instance.loyalty = loyalty
             instance.rentability = rentability
             instance.items.all().delete()
-        for cost, amount in zip(convert_to_list(lot_cost),
-                                convert_to_list(lot_amount)):
-            product = Product.objects.create(name='mock', price=cost)
-            product.save()
+
+        for product, amount in zip(products,
+                                   convert_to_list(lot_amount)):
             item = BlackBoxItem.objects.create(product=product, black_box=instance, amount=amount)
             item.save()
         return instance
-
-
 
     def __str__(self):
         return f'Box({self.name}, {self.price}, {self.loyalty}, {self.rentability})'

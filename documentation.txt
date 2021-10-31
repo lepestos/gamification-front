@@ -32,9 +32,10 @@ base_url: "localhost:8000/api/v1"
             "rentability": Decimal,
             "max_count_costly": Integer,
             "lot_cost": {"cheap": Decimal, "middle": Decimal, "costly": Decimal},
-            "lot_amount": {"cheap": int, "middle": int, "costly": int}}
+            "lot_amount": {"cheap": int, "middle": int, "costly": int}},
+            "id": int
         }
-    PUT/PATCH: изменить коробку
+    PUT: изменить коробку
         body: {
             "name": String,
             "price": Decimal,
