@@ -1,6 +1,6 @@
 <template>
   <section class="black-box-recalculate">
-    <h2 class="black-box-recalculate__error" v-if="recalc_data.message !== ''">С новыми значениями констант {{recalc_data.message}}, поэтому она была перерасчитана</h2>
+    <h2 class="black-box-recalculate__error" v-if="recalc_data.message !== ''">{{recalc_data.message}}</h2>
     <form action="" @submit.prevent="submit()" @reset.prevent="reset()">
       <div class="black-box-recalculate__change-loyalty change-loyalty">
         <h2>Изменить целевую лояльность</h2>
@@ -15,12 +15,14 @@
       <div class="black-box-recalculate__change-cost change-cost">
         <h2>Изменить стоимость Black Box</h2>
         <input type="text"
+               step="10"
                v-bind:min="recalc_data.black_box_cost.min"
                v-bind:max="recalc_data.black_box_cost.max"
-               v-model="recalc_data.black_box_cost.cur" step="1">
+               v-model="recalc_data.black_box_cost.cur">
         <input type="range"
                class="styled-slider slider-progress"
                name="price"
+               step="10"
                v-bind:min="recalc_data.black_box_cost.min"
                v-bind:max="recalc_data.black_box_cost.max"
                v-model="recalc_data.black_box_cost.cur">
