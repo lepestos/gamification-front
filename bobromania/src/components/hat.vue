@@ -4,10 +4,10 @@
     <div class="courses">
       <h2>Курс перевода валют</h2>
       <div class="courses__rub-to-bobr">
-        <span>1 рубль =</span> <input placeholder="введите значение" name="rub-to-bobr" type="text"> <span>бобров</span>
+        <span>1 рубль =</span> <input type="number" placeholder="введите значение" name="rub-to-bobr" v-model="courseInput.rub_to_bobr" @input="rtbchanged()"> <span>бобров</span>
       </div>
       <div class="courses__bobr-to-rub">
-        <span>1 бобр =</span> <input placeholder="введите значение" name="rub-to-bobr" type="text"> <span>рублей</span>
+        <span>1 бобр =</span> <input type="number" placeholder="введите значение" name="rub-to-bobr" v-model="courseInput.bobr_to_rub" @input="btrchanged()"> <span>рублей</span>
       </div>
     </div>
     <ul class="hat__navigation">
@@ -20,8 +20,34 @@
 </template>
 
 <script>
+import {mapGetters} from "vuex";
+import {mapActions} from "vuex";
+
 export default {
-  name: "hat.vue"
+  name: "hat.vue",
+  data() {
+    return {
+      courseInput: {
+        rub_to_bobr: 1,
+        bobr_to_rub: 1
+      }
+    }
+  },
+  methods: {
+    ...mapGetters(['course']),
+    ...mapActions(['rub_to_bobr_changed', 'bobr_to_rub_changed']),
+    rtbchanged() {
+      this.rub_to_bobr_changed(this.courseInput.rub_to_bobr)
+      this.courseInput.bobr_to_rub = this.course().bobr_to_rub
+    },
+    btrchanged() {
+      this.bobr_to_rub_changed(this.courseInput.bobr_to_rub)
+      this.courseInput.rub_to_bobr = this.course().rub_to_bobr
+    }
+  },
+  beforeMount() {
+    this.courseInput = this.course()
+  },
 }
 </script>
 

@@ -1,10 +1,11 @@
 <template>
   <section class="black-box-recalculate">
-    <form action="" @submit.prevent="submit()">
+    <h2 class="black-box-recalculate__error" v-if="recalc_data.message !== ''">С новыми значениями констант {{recalc_data.message}}, поэтому она была перерасчитана</h2>
+    <form action="" @submit.prevent="submit()" @reset.prevent="reset()">
       <div class="black-box-recalculate__change-loyalty change-loyalty">
         <h2>Изменить целевую лояльность</h2>
-        <input type="text" min="0" max="1" step="0.01" v-model="recalc_data.loyalty">
-        <input type="range" class="styled-slider slider-progress" min="0" max="1" step="0.01" v-model="recalc_data.loyalty">
+        <input type="text" min="0.3" max="1" step="0.01" v-model="recalc_data.loyalty">
+        <input type="range" class="styled-slider slider-progress" min="0.3" max="1" step="0.01" v-model="recalc_data.loyalty">
       </div>
       <div class="black-box-recalculate__change-rentability change-rentability">
         <h2>Изменить целевую рентабильность</h2>
@@ -22,11 +23,11 @@
                name="price"
                v-bind:min="recalc_data.black_box_cost.min"
                v-bind:max="recalc_data.black_box_cost.max"
-               step="10"
                v-model="recalc_data.black_box_cost.cur">
       </div>
-      <div class="black-box-recalculate__button-recalculate button-recalculate">
+      <div class="black-box-recalculate__buttons buttons">
         <button type="submit">Перерасчёт параметров</button>
+        <button type="reset">Вернуться к прошлому шагу</button>
       </div>
     </form>
   </section>
@@ -48,14 +49,18 @@ export default {
           cur: 0,
           max: 0
         },
+        message: '',
       }
     }
   },
   methods: {
     ...mapGetters(['active_half', 'recalculate_data']),
-    ...mapActions(['recalculateParametersClicked']),
+    ...mapActions(['recalculateParametersClicked', 'blackBoxReset']),
     async submit() {
       await this.recalculateParametersClicked(this.recalc_data)
+    },
+    reset() {
+      this.blackBoxReset()
     }
   },
   beforeMount() {
@@ -63,7 +68,7 @@ export default {
   },
   mounted() {
     this.recalc_data.black_box_cost.cur++
-    this.recalc_data.black_box_cost.cur-- 
+    this.recalc_data.black_box_cost.cur--
   },
   updated() {
     for (let e of document.querySelectorAll('input[type="range"].slider-progress')) {
@@ -78,11 +83,15 @@ export default {
 
 <style scoped lang="scss">
 .black-box-recalculate {
+  text-align: center;
+  &__error {
+    color: red
+  }
   form {
     display: flex;
     flex-flow: row wrap;
 
-    div:not(.button-recalculate) {
+    div:not(.buttons) {
       flex: 1 1 50%;
       display: grid;
       margin-bottom: $element-margin;
@@ -100,12 +109,11 @@ export default {
       }
     }
 
-    .button-recalculate {
+    .buttons {
       flex: 1 1 50%;
       display: flex;
-      justify-content: center;
+      justify-content: space-around;
       align-items: center;
-
       button {
         @extend %standard-button-active;
       }
@@ -236,6 +244,4 @@ input[type=range].styled-slider.slider-progress::-ms-fill-lower {
   border: 1px solid #b2b2b2;
   border-right-width: 0;
 }
-
-
 </style>
