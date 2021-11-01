@@ -1,26 +1,30 @@
 from math import sqrt, ceil, floor
-from typing import Dict, List, Iterable
+from typing import Dict, Iterable, List
+
 
 PROFIT = 0.15
 LOYALTY = 0.6
 
+LOT_CATEGORIES = ('costly', 'middle', 'cheap')
 
 class Box:
     def __init__(self, lot_cost: Dict[str, float],  costly_amount: int,
                  black_box_cost: float, rentability: float = PROFIT,
                  loyalty: float = LOYALTY):
-        self.prices = [float(lot_cost[category]) for category in ['costly', 'middle', 'cheap']]
+        self.prices = [float(lot_cost[category]) for category in LOT_CATEGORIES]
         self.max_count_costly = costly_amount
         self.profit = float(rentability)
         self.loyalty = float(loyalty)
-        self.min_price = self.get_min_ticket_price()
-        self.max_price = self.get_max_ticket_price()
-        self.set_ticket_price(black_box_cost)
+        self.min_price = self.get_min_price()
+        self.max_price = self.get_max_price()
+        self.set_price(black_box_cost)
         self.probabilities = self.get_probabilities()
         self.amounts = self.get_amounts()
 
     def to_json(self):
-        if self.get_rounded_max_price() < self.get_rounded_min_price():
+        max_p = self.get_rounded_max_price()
+        min_p = self.get_rounded_min_price()
+        if max_p < min_p:
             data = {
                 'message': 'Цены дорогого и среднего лотов '
                            'отличаются на слишком маленькую величину.',
@@ -31,24 +35,24 @@ class Box:
                 'probabilities': convert_to_dict(self.probabilities),
                 'amounts': convert_to_dict(self.amounts),
                 'black_box_cost': {
-                    'cur': self.get_rounded_ticket_price(),
-                    'max': self.get_rounded_max_price(),
-                    'min': self.get_rounded_min_price()
+                    'cur': self.get_rounded_price(),
+                    'max': max_p,
+                    'min': min_p
                 },
                 'message': self.message,
                 'success': True
             }
         return data
 
-    def set_ticket_price(self, black_box_cost):
-        if black_box_cost == 0 or black_box_cost < self.min_price or black_box_cost > self.max_price:
-            self.ticket_price = sqrt(self.get_max_ticket_price() * self.get_min_ticket_price())
-            if black_box_cost == 0:
-                self.message = ''
-            else:
-                self.message = f'С новыми значениями констант цена должна ' \
-                               f'лежать в интервале от {self.get_rounded_min_price()} ' \
-                               f'до {self.get_rounded_max_price()}, поэтому она была перерасчитана.'
+    def set_price(self, black_box_cost):
+        if black_box_cost == 0:
+            self.ticket_price = self.get_optimal_price()
+            self.message = ''
+        elif not self.min_price <= black_box_cost <= self.max_price:
+            self.ticket_price = self.get_optimal_price()
+            self.message = f'С новыми значениями констант цена должна ' \
+                           f'лежать в интервале от {self.get_rounded_min_price()} ' \
+                           f'до {self.get_rounded_max_price()}, поэтому она была перерасчитана.'
         else:
             self.ticket_price = float(black_box_cost)
             self.message = ''
@@ -62,13 +66,13 @@ class Box:
         p2 = self.loyalty - p1
         return p1, p2, p3
 
-    def get_max_ticket_price(self):
+    def get_max_price(self):
         return round((self.profit + 1)
                      * (self.loyalty * self.prices[0]
                         - self.loyalty * self.prices[2] + self.prices[2]),
                      2)
 
-    def get_min_ticket_price(self):
+    def get_min_price(self):
         return round((self.profit + 1)
                      * (self.loyalty * self.prices[1]
                         - self.loyalty * self.prices[2] + self.prices[2]),
@@ -79,7 +83,10 @@ class Box:
         p1, p2, p3 = self.probabilities
         return a1, ceil(a1 * p2 / p1), ceil(a1 * p3 / p1)
 
-    def get_rounded_ticket_price(self):
+    def get_optimal_price(self):
+        return self.geometric_mean(self.min_price, self.max_price)
+
+    def get_rounded_price(self):
         return self.round_up(self.ticket_price)
 
     def get_rounded_max_price(self):
@@ -87,6 +94,10 @@ class Box:
 
     def get_rounded_min_price(self):
         return self.round_up(self.min_price)
+
+    @staticmethod
+    def geometric_mean(a:float, b:float) -> float:
+        return sqrt(a * b)
 
     @staticmethod
     def round_up(price):
@@ -98,7 +109,22 @@ class Box:
 
 
 def convert_to_dict(it: Iterable) -> Dict:
-    return {key: round(value, 3) for key, value in zip(['costly', 'middle', 'cheap'], it)}
+    return {key: round(value, 3) for key, value in zip(LOT_CATEGORIES, it)}
+
+def convert_to_list(dct: Dict) -> List:
+    return [dct[cat] for cat in LOT_CATEGORIES]
+
+
+def get_loyalty(lot_amount: Dict[str, float]):
+    numerator = lot_amount['costly'] + lot_amount['middle']
+    denominator = sum(lot_amount.values())
+    return round(numerator / denominator, 2)
+
+
+def get_rentability(lot_amount, lot_cost, price):
+    total_amount = sum(lot_amount.values())
+    expected_value = sum(lot_amount[key] * lot_cost[key] for key in lot_amount) / total_amount
+    return round(price / expected_value - 1, 2)
 
 
 if __name__ == '__main__':
@@ -107,9 +133,9 @@ if __name__ == '__main__':
         'middle': 300,
         'cheap': 100,
     }
-    b = Box(prices, costly_amount=100, black_box_cost=0, rentability=0.2, loyalty=0.6)
-    print(b.probabilities)
-    print(b.amounts)
-    print(b.ticket_price)
-    print(b.min_price)
-    print(b.max_price)
+    box = Box(prices, costly_amount=100, black_box_cost=0, rentability=0.2, loyalty=0.6)
+    print(box.probabilities)
+    print(box.amounts)
+    print(box.ticket_price)
+    print(box.min_price)
+    print(box.max_price)

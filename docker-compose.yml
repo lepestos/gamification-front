@@ -24,7 +24,7 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ./bobromania:/a/app
+      - ./bobromania:/app
 
 volumes:
   postgres_data:
