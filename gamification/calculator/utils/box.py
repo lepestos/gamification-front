@@ -81,6 +81,10 @@ class Box:
     def get_amounts(self):
         a1 = self.max_count_costly
         p1, p2, p3 = self.probabilities
+        if abs(p1) < 1e-4:
+            if p2 >= p3:
+                return 0, a1, ceil(a1 * p3 / p2)
+            return 0, floor(a1 * p2 / p3), a1
         return a1, ceil(a1 * p2 / p1), ceil(a1 * p3 / p1)
 
     def get_optimal_price(self):
@@ -111,6 +115,7 @@ class Box:
 def convert_to_dict(it: Iterable) -> Dict:
     return {key: round(value, 3) for key, value in zip(LOT_CATEGORIES, it)}
 
+
 def convert_to_list(dct: Dict) -> List:
     return [dct[cat] for cat in LOT_CATEGORIES]
 
@@ -128,14 +133,12 @@ def get_rentability(lot_amount, lot_cost, price):
 
 
 if __name__ == '__main__':
-    prices = {
-        'costly': 305,
-        'middle': 300,
-        'cheap': 100,
+    data = {
+        "lot_cost": {'costly': 400, 'middle': 200, 'cheap': 100},
+        "costly_amount": 10,
+        "black_box_cost": 160,
+        "rentability": 0,
+        "loyalty": 0.6
     }
-    box = Box(prices, costly_amount=100, black_box_cost=0, rentability=0.2, loyalty=0.6)
-    print(box.probabilities)
-    print(box.amounts)
-    print(box.ticket_price)
-    print(box.min_price)
-    print(box.max_price)
+    box = Box(**data)
+    print(box.to_json())

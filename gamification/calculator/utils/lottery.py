@@ -1,4 +1,4 @@
-from math import floor
+from math import floor, ceil
 from typing import List
 
 
@@ -29,8 +29,8 @@ class Lottery:
             'total_cost': self.total_cost,
             'ticket_price': self.ticket_price,
             'min_profit': self.min_profit,
-            'min_rentability': self.min_rentability,
-            'max_rentability': self.max_rentability,
+            'min_rentability': round(self.min_rentability, 2),
+            'max_rentability': round(self.max_rentability, 2),
             'success': self.success,
             'message': self.message
         }
@@ -79,6 +79,17 @@ if __name__ == '__main__':
         'referral_coeff': 4,
         'ticket_amount': 0,
         'ticket_price': 0
+    }
+    lottery = Lottery(**input_data)
+    print(lottery.to_json())
+
+    input_data = {
+        'lot_amounts': [1, 2, 3],
+        'lot_prices': [1000, 500, 200],
+        'write_off': 1000,
+        'referral_coeff': 4,
+        'ticket_amount': 30,
+        'ticket_price': 130
     }
     lottery = Lottery(**input_data)
     print(lottery.to_json())
