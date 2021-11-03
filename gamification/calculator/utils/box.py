@@ -1,11 +1,14 @@
 from math import sqrt, ceil, floor
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Optional
+from random import choices
+from decimal import Decimal
 
 
 PROFIT = 0.15
 LOYALTY = 0.6
 
 LOT_CATEGORIES = ('costly', 'middle', 'cheap')
+
 
 class Box:
     def __init__(self, lot_cost: Dict[str, float],  costly_amount: int,
@@ -73,10 +76,13 @@ class Box:
                      2)
 
     def get_min_price(self):
-        return round((self.profit + 1)
+        res = round((self.profit + 1)
                      * (self.loyalty * self.prices[1]
                         - self.loyalty * self.prices[2] + self.prices[2]),
                      2)
+        if self.profit == 0:
+            res += 10
+        return res
 
     def get_amounts(self):
         a1 = self.max_count_costly
@@ -132,12 +138,38 @@ def get_rentability(lot_amount, lot_cost, price):
     return round(price / expected_value - 1, 2)
 
 
+def open_box_n_times(n: int, amounts: List[int],
+                     costs: List[Decimal], box_price: Decimal) -> List[str]:
+    res = []
+    total_giveaway = Decimal(0)
+    gained = Decimal(0)
+    for _ in range(n):
+        gained += box_price
+        item_number = get_item(amounts, costs, total_giveaway, gained)
+        if item_number is None:
+            break
+        amounts[item_number] -= 1
+        total_giveaway += costs[item_number]
+        res.append(LOT_CATEGORIES[item_number])
+    return res
+
+
+def get_item(amounts: List[int], costs: List[Decimal],
+             total_giveaway: Decimal, gained: Decimal) -> Optional[int]:
+    valid_options = [i for i in range(3) if amounts[i] > 0 and total_giveaway + costs[i] <= gained]
+    weights = [amounts[i] for i in valid_options]
+    if len(valid_options) == 0:
+        return
+    i = choices(valid_options, weights=weights)[0]
+    return i
+
+
 if __name__ == '__main__':
     data = {
-        "lot_cost": {'costly': 400, 'middle': 200, 'cheap': 100},
+        "lot_cost": {'costly': 40, 'middle': 30, 'cheap': 10},
         "costly_amount": 10,
         "black_box_cost": 160,
-        "rentability": 0,
+        "rentability": 0.15,
         "loyalty": 0.6
     }
     box = Box(**data)

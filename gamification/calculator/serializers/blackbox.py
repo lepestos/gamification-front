@@ -43,10 +43,10 @@ class BlackBoxSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BlackBox
-        fields = ('name', 'price', 'lot_cost', 'lot_amount',
+        fields = ('name', 'price', 'lot_cost', 'lot_amount', 'truncated_name',
                   'loyalty', 'rentability', 'max_count_costly', 'id',
                   'product_ids',)
-        read_only_fields = ('loyalty', 'rentability', 'max_count_costly', 'id')
+        read_only_fields = ('loyalty', 'rentability', 'max_count_costly', 'id', 'truncated_name',)
         write_only_fields = ('product_ids',)
 
     def validate(self, attrs):

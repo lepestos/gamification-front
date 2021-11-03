@@ -1,15 +1,15 @@
 from math import floor, ceil
-from typing import List
+from typing import List, Dict
 
 
 class Lottery:
-    def __init__(self, lot_amounts: List[int], lot_prices: List[float],
+    def __init__(self, lots: List[Dict[str, int]],
                  write_off: float, referral_coeff: int, ticket_amount: int,
                  ticket_price: float):
         self.message = ''
         self.success = True
-        self.lot_amounts = lot_amounts
-        self.lot_prices = lot_prices
+        self.lot_amounts = [lot['amount'] for lot in lots]
+        self.lot_prices = [lot['price'] for lot in lots]
         self.write_off = write_off
         self.referral_coeff = referral_coeff
         self.set_ticket_amount(ticket_amount)
@@ -21,8 +21,10 @@ class Lottery:
 
     def to_json(self):
         data = {
-            'lot_amounts': self.lot_amounts,
-            'lot_prices': self.lot_prices,
+            'lots': [
+                {'amount': amount, 'price': price}
+                for amount, price in zip(self.lot_amounts, self.lot_prices)
+            ],
             'write_off': self.write_off,
             'referral_coeff': self.referral_coeff,
             'ticket_amount': self.ticket_amount,
@@ -73,8 +75,11 @@ class Lottery:
 
 if __name__ == '__main__':
     input_data = {
-        'lot_amounts': [1, 2, 3],
-        'lot_prices': [1000, 500, 200],
+        'lots': [
+            {'amount': 1, 'price': 1000},
+            {'amount': 2, 'price': 500},
+            {'amount': 3, 'price': 200},
+        ],
         'write_off': 1000,
         'referral_coeff': 4,
         'ticket_amount': 0,
@@ -84,8 +89,11 @@ if __name__ == '__main__':
     print(lottery.to_json())
 
     input_data = {
-        'lot_amounts': [1, 2, 3],
-        'lot_prices': [1000, 500, 200],
+        'lots': [
+            {'amount': 1, 'price': 1000},
+            {'amount': 2, 'price': 500},
+            {'amount': 3, 'price': 200},
+        ],
         'write_off': 1000,
         'referral_coeff': 4,
         'ticket_amount': 30,

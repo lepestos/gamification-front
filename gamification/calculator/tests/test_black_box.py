@@ -71,6 +71,7 @@ class BlackBoxTest(APITestCase):
         self.assertEqual(data['loyalty'], 0.4)
         self.assertEqual(data['rentability'], 0.47)
         self.assertEqual(data['max_count_costly'], 1)
+        self.assertEqual(data['truncated_name'], 'Box')
 
     def test_put(self):
         self.client.post(reverse('blackbox-list'), data=self.data, format='json')
@@ -127,3 +128,14 @@ class BlackBoxTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         resp_message= response.json()['non_field_errors'][0]
         self.assertEqual(resp_message, err_message)
+
+    def test_truncated_name(self):
+        data = deepcopy(self.data)
+        data['name'] = '123456789012345'
+        bb = BlackBox.from_json(data)
+        bb.save()
+        self.assertEqual(bb.truncated_name(), '123456789012345')
+        data['name'] = '1234567890123456'
+        bb = BlackBox.from_json(data)
+        bb.save()
+        self.assertEqual(bb.truncated_name(), '123456789012...')

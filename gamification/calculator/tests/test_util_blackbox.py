@@ -14,4 +14,6 @@ class BlackBoxTest(unittest.TestCase):
         }
         box = Box(**data)
         res = box.to_json()
-        self.assertEqual(res['amounts'], {'costly': 0, 'middle': 10, 'cheap': 7})
+        self.assertEqual(res['message'], f'С новыми значениями констант цена '
+                                         f'должна лежать в интервале от 170 до '
+                                         f'280, поэтому она была перерасчитана.')
