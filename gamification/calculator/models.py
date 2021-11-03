@@ -1,4 +1,4 @@
-from random import choices, seed
+from random import choices, seed, randint
 from .utils.box import get_loyalty, get_rentability,\
     convert_to_list, convert_to_dict, LOT_CATEGORIES
 
@@ -124,3 +124,39 @@ class BlackBoxItem(models.Model):
 
     def __str__(self):
         return f'{self.product.name} in {self.black_box.name}'
+
+
+class Lottery(models.Model):
+    name = models.CharField(max_length=127)
+    write_off = models.DecimalField(decimal_places=2, max_digits=7)
+    referral_coeff = models.PositiveIntegerField(blank=True, null=True)
+    ticket_price = models.DecimalField(decimal_places=2, max_digits=7)
+    min_profit = models.DecimalField(decimal_places=2, max_digits=7)
+    min_rentability = models.DecimalField(decimal_places=2, max_digits=3)
+    max_rentability = models.DecimalField(decimal_places=2, max_digits=3)
+    total_cost = models.DecimalField(decimal_places=2, max_digits=7)
+
+    class Meta:
+        ordering = ('-name',)
+
+    def __str__(self):
+        return self.name
+
+    def products(self):
+        return [lottery_item.product for lottery_item in self.lottery_items.all()]
+
+    def ticket_amount(self):
+        return self.lottery_items.all().count()
+
+    def success(self, data):
+        amount = [lots['amount'] for lots in data.get('lots')]
+        numbers = [randint(1, self.ticket_amount()) for _ in range(sum(amount))]
+        return numbers
+
+
+class Ticket(models.Model):
+    lottery = models.ForeignKey(Lottery, on_delete=models.CASCADE,
+                                related_name='lottery_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='lottery_items', blank=True)
+    number = models.PositiveIntegerField(unique=True)
