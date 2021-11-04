@@ -1,6 +1,6 @@
 import unittest
 
-from calculator.utils.box import Box
+from calculator.utils.blackbox import BlackBoxUtil
 
 
 class BlackBoxTest(unittest.TestCase):
@@ -12,7 +12,7 @@ class BlackBoxTest(unittest.TestCase):
             "rentability": 0,
             "loyalty": 0.6
         }
-        box = Box(**data)
+        box = BlackBoxUtil(**data)
         res = box.to_json()
         self.assertEqual(res['message'], f'С новыми значениями констант цена '
                                          f'должна лежать в интервале от 170 до '

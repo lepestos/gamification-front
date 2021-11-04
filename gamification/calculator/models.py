@@ -1,5 +1,5 @@
-from random import choices, sample
-from .utils.box import get_loyalty, get_rentability, open_box_n_times, \
+from random import sample
+from .utils.blackbox import get_loyalty, get_rentability, open_box_n_times, \
     convert_to_list, convert_to_dict, LOT_CATEGORIES
 
 from django.db import models

@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from calculator.utils.box import Box
+from calculator.utils.blackbox import BlackBoxUtil
 from calculator.models import BlackBox
 from calculator.serializers.blackbox import BlackBoxSerializer,\
     CalculateSerializer, MockOpenSerializer, MockOpenUnsavedSerializer
@@ -35,7 +35,7 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
     def calculate(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            box = Box(**serializer.data)
+            box = BlackBoxUtil(**serializer.data)
             data = box.to_json()
             if data['success']:
                 return Response(data)

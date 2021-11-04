@@ -3,8 +3,8 @@ from typing import List, Dict
 
 
 class LotteryUtil:
-    def __init__(self, lots: List[Dict[str, int]],
-                 write_off: float, referral_coeff: int, ticket_amount: int,
+    def __init__(self, lots: List[Dict[str, int]], write_off: float,
+                 referral_coeff: int, discount: int, ticket_amount: int,
                  ticket_price: float):
         self.message = ''
         self.success = True
@@ -12,6 +12,7 @@ class LotteryUtil:
         self.lot_prices = [lot['price'] for lot in lots]
         self.write_off = write_off
         self.referral_coeff = referral_coeff
+        self.discount = discount
         self.set_ticket_amount(ticket_amount)
         self.total_cost = self.get_total_cost()
         self.set_ticket_price(ticket_price)
@@ -27,10 +28,11 @@ class LotteryUtil:
             ],
             'write_off': self.write_off,
             'referral_coeff': self.referral_coeff,
+            'discount': self.discount,
             'ticket_amount': self.ticket_amount,
             'total_cost': self.total_cost,
             'ticket_price': self.ticket_price,
-            'min_profit': self.min_profit,
+            'min_profit': round(self.min_profit),
             'min_rentability': round(self.min_rentability, 2),
             'max_rentability': round(self.max_rentability, 2),
             'success': self.success,
@@ -61,7 +63,11 @@ class LotteryUtil:
         return (self.write_off + self.total_cost) / self.ticket_amount
 
     def get_min_profit(self):
-        return self.write_off - self.ticket_price * floor(self.ticket_amount / (self.referral_coeff + 1))
+        factor1 = self.ticket_amount - floor(self.ticket_amount / (self.referral_coeff + 1))
+        factor2 = 1 - self.discount
+        factor3 = self.ticket_price
+        deduction = self.total_cost
+        return factor1 * factor2 * factor3 - deduction
 
     def get_min_rentability(self):
         return self.min_profit / self.total_cost
@@ -82,6 +88,7 @@ if __name__ == '__main__':
         ],
         'write_off': 1000,
         'referral_coeff': 4,
+        'discount': 0.05,
         'ticket_amount': 0,
         'ticket_price': 0
     }
@@ -96,6 +103,7 @@ if __name__ == '__main__':
         ],
         'write_off': 1000,
         'referral_coeff': 4,
+        'discount': 0.05,
         'ticket_amount': 30,
         'ticket_price': 130
     }

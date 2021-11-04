@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from calculator.models import Product, BlackBox, BlackBoxItem
-from calculator.utils.box import convert_to_list, convert_to_dict
+from calculator.utils.blackbox import convert_to_list, convert_to_dict
 
 
 class BlackBoxTest(APITestCase):

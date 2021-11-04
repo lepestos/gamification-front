@@ -1,5 +1,5 @@
 import unittest
-from random import seed, randint
+from random import seed, randint, random
 
 from calculator.utils.lottery import LotteryUtil
 
@@ -14,6 +14,7 @@ class LotteryTest(unittest.TestCase):
                     {'price': randint(100, 1000), 'amount': randint(1,10)} for _ in range(3)
                 ],
                 'write_off': randint(1000, 20000),
+                'discount': random() / 2,
                 'referral_coeff': randint(1, 10),
                 'ticket_amount': 0,
                 'ticket_price': 0
@@ -32,6 +33,7 @@ class LotteryTest(unittest.TestCase):
                 ],
                 'write_off': 0,
                 'referral_coeff': randint(1, 10),
+                'discount': random() / 2,
                 'ticket_amount': randint(30, 1000),
                 'ticket_price': randint(100, 1000),
             }
