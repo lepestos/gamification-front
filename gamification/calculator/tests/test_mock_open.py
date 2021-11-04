@@ -1,5 +1,6 @@
 from collections import Counter
 from decimal import Decimal
+from random import seed
 
 from django.urls import reverse
 from rest_framework.test import APITestCase
@@ -7,6 +8,9 @@ from rest_framework import status
 
 from calculator.models import Product, BlackBox, BlackBoxItem
 from calculator.utils.box import LOT_CATEGORIES
+
+
+seed(42)
 
 
 class MockOpenTest(APITestCase):
@@ -39,18 +43,18 @@ class MockOpenTest(APITestCase):
 
     def test_mock_open_small(self):
         res = self.bb_1.mock_open(3)
-        self.assertEqual(set(res), set(self.bb_1.products()))
+        self.assertEqual(set(res), set(LOT_CATEGORIES))
         res = self.bb_1.mock_open(0)
         self.assertEqual(res, [])
 
     def test_mock_open_large(self):
         res = self.bb_2.mock_open(60)
         self.assertEqual(Counter(res), Counter(
-            {self.products[0]: 10, self.products[1]: 20, self.products[2]: 30}
+            {'costly': 10, 'middle': 20, 'cheap': 30}
         ))
         res = self.bb_2.mock_open(1000)
         self.assertEqual(Counter(res), Counter(
-            {self.products[0]: 10, self.products[1]: 20, self.products[2]: 30}
+            {'costly': 10, 'middle': 20, 'cheap': 30}
         ))
 
     def test_api(self):
@@ -63,11 +67,12 @@ class MockOpenTest(APITestCase):
     def test_rentability_is_never_negative(self):
         products = [Product.objects.create(name=f'Product {i}', price=i*100) for i in range(1, 4)]
         bb = self.create_bb('Box 3', 170, products, [1, 2, 3])
+        cat_map = bb.lot_cost()
         for _ in range(10):
             res = bb.mock_open(6)
             total_giveaway = 0
-            for i, product in enumerate(res):
-                total_giveaway += product.price
+            for i, category in enumerate(res):
+                total_giveaway += cat_map[category]
                 self.assertLessEqual(total_giveaway, Decimal((i + 1) * 170), msg=f'{i}th iteration')
 
     def test_mock_open_unsaved_api(self):

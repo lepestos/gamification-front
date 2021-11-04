@@ -49,9 +49,8 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             bb = BlackBox.objects.get(pk=pk)
-            products = bb.mock_open(serializer.data.get('n'))
-            cat_map = bb.get_category_mapping()
-            data = {'product_categories': [cat_map[product] for product in products]}
+            product_categories = bb.mock_open(serializer.data.get('n'))
+            data = {'product_categories': product_categories}
             return Response(data)
 
         return Response(serializer.errors,
@@ -63,8 +62,7 @@ class BlackBoxViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             bb = BlackBox.from_json(serializer.data)
             bb.save()
-            products = bb.mock_open(serializer.data.get('n'))
-            cat_map = bb.get_category_mapping()
-            data = {'product_categories': [cat_map[product] for product in products]}
+            product_categories = bb.mock_open(serializer.data.get('n'))
+            data = {'product_categories': product_categories}
             bb.delete()
             return Response(data)
