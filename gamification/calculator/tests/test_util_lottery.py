@@ -1,7 +1,7 @@
 import unittest
 from random import seed, randint
 
-from calculator.utils.lottery import Lottery
+from calculator.utils.lottery import LotteryUtil
 
 
 seed(42)
@@ -18,7 +18,7 @@ class LotteryTest(unittest.TestCase):
                 'ticket_amount': 0,
                 'ticket_price': 0
             }
-            lottery = Lottery(**input_data)
+            lottery = LotteryUtil(**input_data)
             res = lottery.to_json()
             self.assertGreater(res['ticket_price'], 0)
             self.assertGreater(res['ticket_amount'], 0)
@@ -35,6 +35,6 @@ class LotteryTest(unittest.TestCase):
                 'ticket_amount': randint(30, 1000),
                 'ticket_price': randint(100, 1000),
             }
-            lottery = Lottery(**input_data)
+            lottery = LotteryUtil(**input_data)
             res = lottery.to_json()
             self.assertGreater(res['total_cost'], 0)
