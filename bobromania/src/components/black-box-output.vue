@@ -15,7 +15,7 @@
     </div>
     <div class="black-box-output__black-box-cost black-box-cost">
       <h2>Рассчитанная стоимость Black Box</h2>
-        <input type="text" v-model="this.output_data().black_box_cost.cur" readonly><span>бобров</span>
+        <input type="number" :value="this.output_data().black_box_cost.cur.toFixed(1)" readonly><span>бобров</span>
         <input type="number" :value="(this.output_data().black_box_cost.cur * this.course().bobr_to_rub).toFixed(1)" readonly><span>рублей</span>
     </div>
   </section>

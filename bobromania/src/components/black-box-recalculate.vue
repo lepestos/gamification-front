@@ -1,14 +1,14 @@
 <template>
   <section class="black-box-recalculate">
     <h2 class="black-box-recalculate__error" v-if="recalc_data.message !== ''">{{recalc_data.message}}</h2>
-    <form action="" @submit.prevent="submit()" @reset.prevent="reset()">
+    <form id="recalc" action="" @submit.prevent="submit()" @reset.prevent="reset()">
       <div class="black-box-recalculate__change-loyalty change-loyalty">
         <h2>Изменить целевую лояльность</h2>
-        <input type="text" min="0.3" max="1" step="0.01" v-model="recalc_data.loyalty">
-        <input type="range" class="styled-slider slider-progress" min="0.3" max="1" step="0.01" v-model="recalc_data.loyalty">
+        <input type="text" min="0.3" max="0.9" step="0.01" v-model="recalc_data.loyalty">
+        <input type="range" class="styled-slider slider-progress" min="0.3" max="0.9" step="0.01" v-model="recalc_data.loyalty">
       </div>
       <div class="black-box-recalculate__change-rentability change-rentability">
-        <h2>Изменить целевую рентабильность</h2>
+        <h2>Изменить целевую рентабельность</h2>
         <input type="text" min="0" max="1" step="0.01" v-model="recalc_data.rentability">
         <input type="range" class="styled-slider slider-progress" min="0" max="1" step="0.01" v-model="recalc_data.rentability">
       </div>
@@ -29,8 +29,12 @@
       </div>
       <div class="black-box-recalculate__buttons buttons">
         <button type="submit">Перерасчёт параметров</button>
-        <button type="reset">Вернуться к прошлому шагу</button>
+        <button type="reset">Вернуться к первому шагу</button>
       </div>
+    </form>
+    <form action="" id="save" @submit.prevent="">
+      <input type="text" placeholder="Название">
+      <button>Сохранить расчёт</button>
     </form>
   </section>
 </template>
@@ -89,36 +93,43 @@ export default {
   &__error {
     color: red
   }
-  form {
+  #recalc {
     display: flex;
     flex-flow: row wrap;
-
     div:not(.buttons) {
       flex: 1 1 50%;
       display: grid;
-      margin-bottom: $element-margin;
+      margin-top: $element-margin;
       grid-template-columns: 100px 300px+$similar-element-margin*2;
       grid-gap: $similar-element-margin;
       grid-auto-rows: $input-height;
       line-height: $input-height;
-
       h2 {
         grid-column: 1/3;
       }
-
       input[type=text] {
         @extend %standard-input;
       }
     }
-
     .buttons {
       flex: 1 1 50%;
       display: flex;
       justify-content: space-around;
       align-items: center;
       button {
-        @extend %standard-button-active;
+        @extend %standard-button-inactive;
       }
+    }
+  }
+  #save {
+    margin-top: $section-margin;
+    input {
+      @extend %standard-input;
+      width: 140px;
+      margin-right: 20px;
+    }
+    button {
+      @extend %standard-button-active;
     }
   }
 }
