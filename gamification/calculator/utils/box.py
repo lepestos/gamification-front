@@ -111,6 +111,7 @@ class Box:
 def convert_to_dict(it: Iterable) -> Dict:
     return {key: round(value, 3) for key, value in zip(LOT_CATEGORIES, it)}
 
+
 def convert_to_list(dct: Dict) -> List:
     return [dct[cat] for cat in LOT_CATEGORIES]
 

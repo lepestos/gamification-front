@@ -1,4 +1,4 @@
-from random import choices, seed, randint
+from random import choices, seed, sample
 from .utils.box import get_loyalty, get_rentability,\
     convert_to_list, convert_to_dict, LOT_CATEGORIES
 
@@ -149,8 +149,8 @@ class Lottery(models.Model):
         return self.lottery_items.all().count()
 
     def success(self, data):
-        amount = [lots['amount'] for lots in data.get('lots')]
-        numbers = [randint(1, self.ticket_amount()) for _ in range(sum(amount))]
+        amounts = [lot['amount'] for lot in data.get('lots')]
+        numbers = sample(range(self.ticket_amount()), sum(amounts))
         return numbers
 
 
@@ -158,5 +158,5 @@ class Ticket(models.Model):
     lottery = models.ForeignKey(Lottery, on_delete=models.CASCADE,
                                 related_name='lottery_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='lottery_items', blank=True)
+                                related_name='lottery_items', blank=True, null=True)
     number = models.PositiveIntegerField(unique=True)

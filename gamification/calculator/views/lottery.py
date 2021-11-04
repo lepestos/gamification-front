@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from calculator.utils.lottery import Lottery
+from calculator.utils.lottery import LotteryUtil
 from calculator.models import Lottery
 from calculator.serializers.lottery import LotterySerializer, CalculateSerializer
 
@@ -20,7 +20,7 @@ class LotteryViewSet(viewsets.ModelViewSet):
     def calculate(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            lottery = Lottery(**serializer.data)
+            lottery = LotteryUtil(**serializer.data)
             data = lottery.to_json()
             if data['success']:
                 return Response(data)
