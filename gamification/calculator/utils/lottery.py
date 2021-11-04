@@ -2,7 +2,7 @@ from math import floor, ceil
 from typing import List, Dict
 
 
-class Lottery:
+class LotteryUtil:
     def __init__(self, lots: List[Dict[str, int]],
                  write_off: float, referral_coeff: int, ticket_amount: int,
                  ticket_price: float):
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         'ticket_amount': 0,
         'ticket_price': 0
     }
-    lottery = Lottery(**input_data)
+    lottery = LotteryUtil(**input_data)
     print(lottery.to_json())
 
     input_data = {
@@ -99,5 +99,5 @@ if __name__ == '__main__':
         'ticket_amount': 30,
         'ticket_price': 130
     }
-    lottery = Lottery(**input_data)
+    lottery = LotteryUtil(**input_data)
     print(lottery.to_json())
