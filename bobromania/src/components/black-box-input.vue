@@ -20,7 +20,7 @@
             <h2>Расчётные константы</h2>
             <div class="constants__inputs">
               <span class="constants__span_two-lines">Целевая лояльность:</span>
-              <input type="number" v-model="input_data.loyalty" min="0.3" max="1" step="0.01" required :disabled="this.active_half() !== 'top'">
+              <input type="number" v-model="input_data.loyalty" min="0.3" max="0.9" step="0.01" required :disabled="this.active_half() !== 'top'">
               <span class="constants__span_one-line">Рентабельность:</span>
               <input type="number" v-model="input_data.rentability" min="0" max="1" step="0.01" required :disabled="this.active_half() !== 'top'">
             </div>
