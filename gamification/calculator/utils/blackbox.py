@@ -10,7 +10,7 @@ LOYALTY = 0.6
 LOT_CATEGORIES = ('costly', 'middle', 'cheap')
 
 
-class Box:
+class BlackBoxUtil:
     def __init__(self, lot_cost: Dict[str, float],  costly_amount: int,
                  black_box_cost: float, rentability: float = PROFIT,
                  loyalty: float = LOYALTY):
@@ -172,5 +172,5 @@ if __name__ == '__main__':
         "rentability": 0.15,
         "loyalty": 0.6
     }
-    box = Box(**data)
+    box = BlackBoxUtil(**data)
     print(box.to_json())

@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from calculator.models import Product, BlackBox, BlackBoxItem
-from calculator.utils.box import LOT_CATEGORIES
+from calculator.utils.blackbox import LOT_CATEGORIES
 
 
 seed(42)
