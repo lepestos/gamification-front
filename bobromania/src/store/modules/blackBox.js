@@ -25,6 +25,8 @@ export default {
             max: 0
         },
         message: '',
+        black_box_name: '',
+        saved_black_boxes: ''
     },
     mutations: {
         updateActiveHalf(state, value) {
@@ -56,6 +58,12 @@ export default {
         },
         updateProducts(state, value) {
             state.products = value;
+        },
+        updateBlackBoxName(state, value) {
+            state.black_box_name = value;
+        },
+        updateSavedBoxes(state, value) {
+            state.saved_black_boxes = value;
         }
     },
     getters: {
@@ -88,6 +96,19 @@ export default {
         },
         products(state) {
             return state.products;
+        },
+        save_data(state) {
+            return {
+                name: state.black_box_name,
+                price: state.black_box_cost.cur,
+                lot_cost: state.lot_cost,
+                lot_amount: state.amounts,
+                //loyalty: state.loyalty,
+                //rentability: state.rentability,
+            }
+        },
+        saved_boxes(state) {
+            return state.saved_black_boxes
         }
     },
     actions: {
@@ -150,7 +171,7 @@ export default {
                 headers: {
                     'accept': 'application/json',
                     'Content-Type': 'application/json'
-                }
+                },
             });
             if (response.ok) {
                 const json = await response.json();
@@ -161,7 +182,46 @@ export default {
                 const json = await response.json();
                 console.log(json);
             }
+        },
+        async saveBlackBox(ctx, name) {
+            ctx.commit('updateBlackBoxName', name)
+            const url = "http://localhost:8000/api/v1/black-box/";
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ctx.getters.save_data)
+            });
+            if (response.ok) {
+                const json = await response.json();
+                console.log(json)
+                ctx.actions.loadBlackBoxes(ctx);
+            } else {
+                console.log("Ошибка HTTP: " + response.status);
+                const json = await response.json();
+                console.log(json);
+            }
+        },
+        async loadBlackBoxes(ctx) {
+            const url = "http://localhost:8000/api/v1/black-box/";
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            });
+            if (response.ok) {
+                const json = await response.json();
+                console.log(json)
+                ctx.commit('updateSavedBoxes', json)
+            } else {
+                console.log("Ошибка HTTP: " + response.status);
+                const json = await response.json();
+                console.log(json);
+            }
         }
-
     }
 }
