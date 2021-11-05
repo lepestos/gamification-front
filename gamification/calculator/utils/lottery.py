@@ -8,6 +8,9 @@ class LotteryUtil:
                  ticket_price: float):
         self.message = ''
         self.success = True
+        self.validate(lots, write_off, referral_coeff, discount, ticket_amount, ticket_price)
+        if not self.success:
+            return
         self.lot_amounts = [lot['amount'] for lot in lots]
         self.lot_prices = [lot['price'] for lot in lots]
         self.write_off = write_off
@@ -21,6 +24,11 @@ class LotteryUtil:
         self.max_rentability = self.get_max_rentability()
 
     def to_json(self):
+        if not self.success:
+            return {
+                'success': False,
+                'message': self.message
+            }
         data = {
             'lots': [
                 {'amount': amount, 'price': price}
@@ -39,6 +47,49 @@ class LotteryUtil:
             'message': self.message
         }
         return data
+
+    def validate(self, lots, write_off, referral_coeff,
+                 discount, ticket_amount, ticket_price):
+        for lot in lots:
+            if lot['amount'] < 0:
+                self.message = 'Error: lot amount < 0'
+                self.success = False
+            if lot['price'] < 0:
+                self.message = 'Error: lot price < 0'
+                self.success = False
+        if write_off < 0:
+            self.message = 'Error: write_off < 0'
+            self.success = False
+            return
+        if referral_coeff < 0:
+            self.message = 'Error: referral_coeff < 0'
+            self.success = False
+            return
+        if (referral_coeff - int(referral_coeff)) != 0:
+            self.message = 'Error: referral_coeff must be integer'
+            self.success = False
+            return
+        if not (0 <= discount <= 1):
+            self.message = 'Error: discount must be a number between 0 and 1'
+            self.success = False
+            return
+        if ticket_amount < 0:
+            self.message = 'Error: ticket_amount < 0'
+            self.success = False
+            return
+        if ticket_price < 0:
+            self.message = 'Error: ticket_price < 0'
+            self.success = False
+            return
+        if 0 < ticket_amount < sum(lot['amount'] for lot in lots):
+            self.message = "Error: ticket_amount can't be less than total amount of lots"
+            self.success = False
+            return
+        if (ticket_price == 0) is not (ticket_amount == 0):
+            self.message = "Error: ticket_amount and ticket_price must be " \
+                           "either both zero or both non-zero"
+            self.success = False
+            return
 
     def set_ticket_amount(self, ticket_amount):
         if ticket_amount == 0:
@@ -60,7 +111,7 @@ class LotteryUtil:
         return sum(a * c for a, c in zip(self.lot_amounts, self.lot_prices))
 
     def get_ticket_price(self):
-        return (self.write_off + self.total_cost) / self.ticket_amount
+        return self.round_up((self.write_off + self.total_cost) / self.ticket_amount)
 
     def get_min_profit(self):
         factor1 = self.ticket_amount - floor(self.ticket_amount / (self.referral_coeff + 1))
@@ -77,6 +128,10 @@ class LotteryUtil:
 
     def get_write_off(self):
         return self.ticket_amount * self.ticket_price - self.total_cost
+
+    @staticmethod
+    def round_up(price):
+        return ceil(price / 10) * 10
 
 
 if __name__ == '__main__':
@@ -106,6 +161,21 @@ if __name__ == '__main__':
         'discount': 0.05,
         'ticket_amount': 30,
         'ticket_price': 130
+    }
+    lottery = LotteryUtil(**input_data)
+    print(lottery.to_json())
+
+    input_data = {
+        'lots': [
+            {'amount': 1, 'price': 1000},
+            {'amount': 1, 'price': 500},
+            {'amount': 1, 'price': 200},
+        ],
+        'write_off': 1000,
+        'referral_coeff': 4,
+        'discount': 0.05,
+        'ticket_amount': 0,
+        'ticket_price': 0
     }
     lottery = LotteryUtil(**input_data)
     print(lottery.to_json())
