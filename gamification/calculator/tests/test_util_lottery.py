@@ -26,14 +26,7 @@ class LotteryTest(unittest.TestCase):
 
     def test_initial(self):
         exp_response = {
-            'lots': [
-                {'amount': 1, 'price': 1000},
-                {'amount': 2, 'price': 500},
-                {'amount': 3, 'price': 200}
-            ],
             'write_off': 1000,
-            'referral_coeff': 4,
-            'discount': 0.05,
             'ticket_amount': 24,
             'total_cost': 2600,
             'ticket_price': 150.0,
@@ -46,19 +39,30 @@ class LotteryTest(unittest.TestCase):
         lottery = LotteryUtil(**self.data)
         self.assertEqual(lottery.to_json(), exp_response)
 
+    def test_initial_no_referral(self):
+        data = deepcopy(self.data)
+        del data['referral_coeff']
+        del data['discount']
+        exp_response = {
+            'write_off': 1000,
+            'ticket_amount': 24,
+            'total_cost': 2600,
+            'ticket_price': 150,
+            'min_profit': 1000,
+            'min_rentability': 0.38,
+            'max_rentability': 0.38,
+            'success': True,
+            'message': ''
+        }
+        lottery = LotteryUtil(**data)
+        self.assertEqual(lottery.to_json(), exp_response)
+
     def test_recalculate(self):
         data = deepcopy(self.data)
         data['ticket_amount'] = 30
         data['ticket_price'] = 130
         exp_response = {
-            'lots': [
-                {'amount': 1, 'price': 1000},
-                {'amount': 2, 'price': 500},
-                {'amount': 3, 'price': 200}
-            ],
             'write_off': 1300,
-            'referral_coeff': 4,
-            'discount': 0.05,
             'ticket_amount': 30,
             'total_cost': 2600,
             'ticket_price': 130,
