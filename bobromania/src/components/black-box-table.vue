@@ -21,7 +21,7 @@
       </tr>
       <tr v-if="this.saved_boxes().length !== 0" v-for="box in this.saved_boxes()">
         <td><img src="@/assets/img/trash.png" alt="" @click="this.deleteBlackBox(box.id)"></td>
-        <td colspan="2">{{box.name}}</td>
+        <td colspan="2">{{box.truncated_name}}</td>
         <td><input type="number" v-model="box.lot_cost.cheap" readonly></td>
         <td><input type="number" v-model="box.lot_cost.middle" readonly></td>
         <td><input type="number" v-model="box.lot_cost.costly" readonly></td>
