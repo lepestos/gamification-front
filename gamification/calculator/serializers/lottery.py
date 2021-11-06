@@ -25,3 +25,4 @@ class CalculateSerializer(serializers.Serializer):
     referral_coeff = serializers.IntegerField(required=False)
     ticket_amount = serializers.IntegerField(min_value=0)
     ticket_price = serializers.DecimalField(max_digits=7, decimal_places=2, min_value=0)
+    discount = serializers.IntegerField(required=False)

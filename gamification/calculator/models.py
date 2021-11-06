@@ -1,4 +1,5 @@
 from random import sample
+from collections import Counter, defaultdict
 from .utils.box import get_loyalty, get_rentability, open_box_n_times, \
     convert_to_list, convert_to_dict, LOT_CATEGORIES
 
@@ -184,7 +185,7 @@ class Lottery(models.Model):
                                           ticket_price=ticket_price, min_profit=min_profit,
                                           min_rentability=min_rentability, max_rentability=max_rentability,
                                           total_cost=total_cost, discount=discount)
-            instance.items.all().delete()
+            instance.lottery_items.all().delete()
 
         cls.set_tickets(instance, data, products, numbers)
         return instance
@@ -218,7 +219,16 @@ class Lottery(models.Model):
         return instance
 
     def lots(self):
-        pass
+        counter = defaultdict(int)
+        for ticket in self.lottery_items.all():
+            if ticket.product:
+                product = ticket.product
+                counter[(product.id, product.price)] += 1
+        products = []
+        for id_price, amount in counter.items():
+            id_, price = id_price
+            products.append({'amount': amount, 'price': price})
+        return sorted(products, key=lambda x: x['price'], reverse=True)
 
 
 class Ticket(models.Model):
