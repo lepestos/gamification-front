@@ -4,8 +4,8 @@ from typing import List, Dict
 
 class LotteryUtil:
     def __init__(self, lots: List[Dict[str, int]], write_off: float,
-                 referral_coeff: int, discount: int, ticket_amount: int,
-                 ticket_price: float):
+                 ticket_amount: int, ticket_price: float,
+                 referral_coeff: int=float('inf'), discount: int=0):
         self.message = ''
         self.success = True
         self.validate(lots, write_off, referral_coeff, discount, ticket_amount, ticket_price)
@@ -30,13 +30,7 @@ class LotteryUtil:
                 'message': self.message
             }
         data = {
-            'lots': [
-                {'amount': amount, 'price': price}
-                for amount, price in zip(self.lot_amounts, self.lot_prices)
-            ],
             'write_off': self.write_off,
-            'referral_coeff': self.referral_coeff,
-            'discount': self.discount,
             'ticket_amount': self.ticket_amount,
             'total_cost': self.total_cost,
             'ticket_price': self.ticket_price,
@@ -65,7 +59,7 @@ class LotteryUtil:
             self.message = 'Error: referral_coeff < 0'
             self.success = False
             return
-        if (referral_coeff - int(referral_coeff)) != 0:
+        if referral_coeff != float('inf') and (referral_coeff - int(referral_coeff)) != 0:
             self.message = 'Error: referral_coeff must be integer'
             self.success = False
             return
