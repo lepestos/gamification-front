@@ -197,7 +197,8 @@ export default {
             if (response.ok) {
                 const json = await response.json();
                 console.log(json)
-                ctx.actions.loadBlackBoxes(ctx);
+                ctx.dispatch('blackBoxReset')
+                ctx.dispatch('loadBlackBoxes')
             } else {
                 console.log("Ошибка HTTP: " + response.status);
                 const json = await response.json();
@@ -217,6 +218,24 @@ export default {
                 const json = await response.json();
                 console.log(json)
                 ctx.commit('updateSavedBoxes', json)
+            } else {
+                console.log("Ошибка HTTP: " + response.status);
+                const json = await response.json();
+                console.log(json);
+            }
+        },
+        async deleteBlackBox(ctx, id) {
+            const url = `http://localhost:8000/api/v1/black-box/${id}`;
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            });
+            if (response.ok) {
+                console.log('delete OK')
+                ctx.dispatch('loadBlackBoxes')
             } else {
                 console.log("Ошибка HTTP: " + response.status);
                 const json = await response.json();
