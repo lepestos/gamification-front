@@ -1,20 +1,22 @@
 from rest_framework import serializers
 
-from calculator.models import Lottery, Product
-
-
-class LotterySerializer(serializers.ModelSerializer):
-    product_ids = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
-
-    class Meta:
-        model = Lottery
-        fields = ('name', 'write_off', 'referral_coeff', 'product_ids')
-        write_only = ('product_ids',)
+from calculator.models import Lottery
 
 
 class LotSerializer(serializers.Serializer):
     amount = serializers.IntegerField(min_value=1)
     price = serializers.DecimalField(min_value=0, max_digits=7, decimal_places=2)
+
+
+class LotterySerializer(serializers.ModelSerializer):
+    lots = LotSerializer(many=True)
+    ticket_amount = serializers.IntegerField(min_value=0)
+
+    class Meta:
+        model = Lottery
+        fields = ('name', 'lots', 'write_off', 'referral_coeff', 'ticket_amount',
+                  'total_cost', 'ticket_price', 'min_profit',
+                  'min_rentability', 'max_rentability', 'discount',)
 
 
 class CalculateSerializer(serializers.Serializer):

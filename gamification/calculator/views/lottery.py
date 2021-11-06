@@ -16,6 +16,16 @@ class LotteryViewSet(viewsets.ModelViewSet):
             return CalculateSerializer
         return super().get_serializer_class()
 
+    def perform_create(self, serializer):
+        lottery = Lottery.from_json(serializer.data)
+        lottery.save()
+
+    def perform_update(self, serializer):
+        instance = serializer.instance
+        data = serializer.validated_data
+        lottery = Lottery.from_json(data, instance=instance)
+        lottery.save()
+
     @action(detail=False, methods=['post'])
     def calculate(self, request):
         serializer = self.get_serializer(data=request.data)

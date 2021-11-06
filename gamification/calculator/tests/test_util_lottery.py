@@ -6,6 +6,7 @@ from calculator.utils.lottery import LotteryUtil
 
 seed(42)
 
+
 class LotteryTest(unittest.TestCase):
     def test_initial_input(self):
         for _ in range(10):

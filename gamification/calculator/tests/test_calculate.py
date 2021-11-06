@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 
-class CalculateTest(APITestCase):
+class CalculateTestBlackBox(APITestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -67,3 +67,41 @@ class CalculateTest(APITestCase):
         self.assertEqual(response.data['black_box_cost']['cur'], exp_cur)
         self.assertEqual(response.data['black_box_cost']['max'], exp_max)
         self.assertEqual(response.data['black_box_cost']['min'], exp_min)
+
+
+class CalculateTestLottery(APITestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.data = {
+            "lots": [
+            {"amount": 1, "price": 1000},
+            {"amount": 2, "price": 500},
+            {"amount": 3, "price": 200}
+            ],
+            "write_off": 1000,
+            "referral_coeff": 4,
+            "ticket_amount": 0,
+            "ticket_price": 0
+        }
+        cls.data2 = deepcopy(cls.data)
+        cls.data2['ticket_amount'] = 30
+        cls.data2['ticket_price'] = 130
+
+    def test_calculate(self):
+        response = self.client.post(reverse('lottery-list') + 'calculate/', data=self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertIn('lots', data)
+        for lot in data['lots']:
+            self.assertIn('amount', lot)
+            self.assertIn('price', lot)
+        self.assertIn('write_off', data)
+        self.assertIn('referral_coeff', data)
+        self.assertIn('ticket_amount', data)
+        self.assertIn('total_cost', data)
+        self.assertIn('ticket_price', data)
+        self.assertIn('min_profit', data)
+        self.assertIn('min_rentability', data)
+        self.assertIn('max_rentability', data)
+        self.assertIn('discount', data)
