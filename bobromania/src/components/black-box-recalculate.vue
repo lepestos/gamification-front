@@ -32,9 +32,9 @@
         <button type="reset">Вернуться к первому шагу</button>
       </div>
     </form>
-    <form action="" id="save" @submit.prevent="this.saveBlackBox(name)">
-      <input type="text" placeholder="Название" v-model="name">
-      <button>Сохранить расчёт</button>
+    <form action="" id="save" @submit.prevent="save()">
+      <input type="text" placeholder="Название" v-model="name" size="10">
+      <button type="submit">Сохранить расчёт</button>
     </form>
   </section>
 </template>
@@ -62,12 +62,16 @@ export default {
   },
   methods: {
     ...mapGetters(['active_half', 'recalculate_data']),
-    ...mapActions(['recalculateParametersClicked', 'blackBoxReset', 'saveBlackBox']),
+    ...mapActions(['recalculateParametersClicked', 'blackBoxReset', 'saveBlackBox', 'loadBlackBoxes']),
     async submit() {
       await this.recalculateParametersClicked(this.recalc_data)
     },
     reset() {
       this.blackBoxReset()
+    },
+    save() {
+      this.saveBlackBox(this.name)
+      this.loadBlackBoxes()
     }
   },
   beforeMount() {
