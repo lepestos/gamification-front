@@ -1,5 +1,5 @@
 import unittest
-from random import seed, randint, random
+from random import seed
 from copy import deepcopy
 
 from calculator.utils.lottery import LotteryUtil
@@ -76,6 +76,25 @@ class LotteryTest(unittest.TestCase):
         lottery = LotteryUtil(**data)
         self.assertEqual(lottery.to_json(), exp_response)
 
+    def test_recalculate_too_few_tickets(self):
+        data = deepcopy(self.data)
+        data['ticket_amount'] = 17
+        data['ticket_price'] = 150
+        exp_response = {
+            'write_off': 1000,
+            'ticket_amount': 24,
+            'total_cost': 2600,
+            'ticket_price': 150.0,
+            'min_profit': 250,
+            'min_rentability': 0.1,
+            'max_rentability': 0.38,
+            'success': True,
+            'message': 'Для заданной цены количество билетов должно быть '
+                       'не меньше 18, поэтому оно было перерасчитано.'
+        }
+        lottery = LotteryUtil(**data)
+        self.assertEqual(lottery.to_json(), exp_response)
+
     def test_bad_lots(self):
         data = deepcopy(self.data)
         data['lots'][1]['price'] = -2
@@ -120,7 +139,7 @@ class LotteryTest(unittest.TestCase):
         ticket_price = lottery.to_json()['ticket_price']
         self.assertEqual(ticket_price, (ticket_price // 10) * 10)
 
-    def test_recalculate_too_few_tickets(self):
+    def test_recalculate_invalid_ticket_amount(self):
         data = deepcopy(self.data)
         data['ticket_amount'] = 5
         data['ticket_price'] = 130
