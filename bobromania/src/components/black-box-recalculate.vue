@@ -4,17 +4,17 @@
     <form id="recalc" action="" @submit.prevent="submit()" @reset.prevent="reset()">
       <div class="black-box-recalculate__change-loyalty change-loyalty">
         <h2>Изменить целевую лояльность</h2>
-        <input type="text" min="0.3" max="0.9" step="0.01" v-model="recalc_data.loyalty">
+        <input type="number" min="0.3" max="0.9" step="0.01" v-model="recalc_data.loyalty">
         <input type="range" class="styled-slider slider-progress" min="0.3" max="0.9" step="0.01" v-model="recalc_data.loyalty">
       </div>
       <div class="black-box-recalculate__change-rentability change-rentability">
         <h2>Изменить целевую рентабельность</h2>
-        <input type="text" min="0" max="1" step="0.01" v-model="recalc_data.rentability">
+        <input type="number" min="0" max="1" step="0.01" v-model="recalc_data.rentability">
         <input type="range" class="styled-slider slider-progress" min="0" max="1" step="0.01" v-model="recalc_data.rentability">
       </div>
       <div class="black-box-recalculate__change-cost change-cost">
         <h2>Изменить стоимость Black Box</h2>
-        <input type="text"
+        <input type="number"
                step="10"
                v-bind:min="recalc_data.black_box_cost.min"
                v-bind:max="recalc_data.black_box_cost.max"
@@ -112,7 +112,7 @@ export default {
       h2 {
         grid-column: 1/3;
       }
-      input[type=text] {
+      input[type=number] {
         @extend %standard-input;
       }
     }
