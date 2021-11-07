@@ -28,6 +28,5 @@ export default {
         bobr_to_rub_changed(ctx, value) {
             ctx.commit('updateBobrToRub', value)
         }
-
     }
 }
