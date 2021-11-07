@@ -7,6 +7,7 @@ from calculator.utils.lottery import LotteryUtil
 
 seed(42)
 
+
 class LotteryTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

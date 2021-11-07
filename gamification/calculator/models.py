@@ -1,4 +1,5 @@
 from random import sample
+from collections import defaultdict
 from .utils.blackbox import get_loyalty, get_rentability, open_box_n_times, \
     convert_to_list, convert_to_dict, LOT_CATEGORIES
 
@@ -138,6 +139,7 @@ class Lottery(models.Model):
     min_rentability = models.DecimalField(decimal_places=2, max_digits=3)
     max_rentability = models.DecimalField(decimal_places=2, max_digits=3)
     total_cost = models.DecimalField(decimal_places=2, max_digits=7)
+    discount = models.DecimalField(decimal_places=2, max_digits=3)
 
     class Meta:
         ordering = ('-name',)
@@ -151,10 +153,82 @@ class Lottery(models.Model):
     def ticket_amount(self):
         return self.lottery_items.all().count()
 
-    def success(self, data):
+    @staticmethod
+    def lucky_numbers(data):
         amounts = [lot['amount'] for lot in data.get('lots')]
-        numbers = sample(range(self.ticket_amount()), sum(amounts))
+        numbers = sample(range(data['ticket_amount']), sum(amounts))
         return numbers
+
+    @classmethod
+    def from_json(cls, data, instance=None):
+        name = data['name']
+        write_off = data['write_off']
+        referral_coeff = data.get('referral_coeff')
+        discount = data.get('discount')
+        ticket_price = data['ticket_price']
+        max_rentability = data['max_rentability']
+        min_rentability = data['min_rentability']
+        min_profit = data['min_profit']
+        total_cost = data['total_cost']
+
+        lots = data.get('lots')
+        products = cls.get_mock_products(lots)
+        numbers = cls.lucky_numbers(data)
+
+        if instance is None:
+            instance = Lottery.objects.create(name=name, write_off=write_off,referral_coeff=referral_coeff,
+                                              ticket_price=ticket_price, min_profit=min_profit,
+                                              min_rentability=min_rentability, max_rentability=max_rentability,
+                                              total_cost=total_cost, discount=discount)
+        else:
+            instance = cls.set_properties(instance, name=name, write_off=write_off, referral_coeff=referral_coeff,
+                                          ticket_price=ticket_price, min_profit=min_profit,
+                                          min_rentability=min_rentability, max_rentability=max_rentability,
+                                          total_cost=total_cost, discount=discount)
+            instance.lottery_items.all().delete()
+
+        cls.set_tickets(instance, data, products, numbers)
+        return instance
+
+    @staticmethod
+    def get_mock_products(lots):
+        products = [Product.objects.create(name='mock', price=lot['price'])
+                    for lot in lots]
+        for product in products:
+            product.save()
+        return products
+
+    @classmethod
+    def set_tickets(cls, instance, data, products, numbers):
+        tickets = [Ticket.objects.create(product=None, lottery=instance, number=i)
+                   for i in range(data['ticket_amount'])]
+        lots = data['lots']
+        products_for_amount = []
+        for product, lot in zip(products, lots):
+            products_for_amount.extend([product] * lot['amount'])
+        for product, number in zip(products_for_amount, numbers):
+            tickets[number].product = product
+        for ticket in tickets:
+            ticket.save()
+        return tickets
+
+    @classmethod
+    def set_properties(cls, instance, **kwargs):
+        for key, value in kwargs.items():
+            setattr(instance, key, value)
+        return instance
+
+    def lots(self):
+        counter = defaultdict(int)
+        for ticket in self.lottery_items.all():
+            if ticket.product:
+                product = ticket.product
+                counter[(product.id, product.price)] += 1
+        products = []
+        for id_price, amount in counter.items():
+            id_, price = id_price
+            products.append({'amount': amount, 'price': price})
+        return sorted(products, key=lambda x: x['price'], reverse=True)
 
 
 class Ticket(models.Model):
@@ -162,4 +236,4 @@ class Ticket(models.Model):
                                 related_name='lottery_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='lottery_items', blank=True, null=True)
-    number = models.PositiveIntegerField(unique=True)
+    number = models.PositiveIntegerField()
