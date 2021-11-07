@@ -11,10 +11,9 @@
       </div>
     </div>
     <ul class="hat__navigation">
-      <li class="hat__link hat__link_active"><router-link to="/BlackBox">Black Box</router-link></li>
-      <li class="hat__link"><router-link to="/Lottery">Лотерея</router-link></li>
-      <li class="hat__link"><router-link to="/Bingo">Бинго</router-link></li>
-      <li class="hat__link"><router-link to="/Auction">Аукцион</router-link></li>
+      <li class="hat__link" :class="{hat__link_active: active_page === 'BlackBox'}" @click="active_page = 'BlackBox'"><router-link to="/BlackBox">Black Box</router-link></li>
+      <li class="hat__link" :class="{hat__link_active: active_page === 'Lottery'}" @click="active_page = 'Lottery'"><router-link to="/Lottery">Лотерея</router-link></li>
+      <li class="hat__link" :class="{hat__link_active: active_page === 'Bingo'}" @click="active_page = 'Bingo'"><router-link to="/Bingo">Бинго</router-link></li>
     </ul>
   </section>
 </template>
@@ -30,7 +29,8 @@ export default {
       courseInput: {
         rub_to_bobr: 1,
         bobr_to_rub: 1
-      }
+      },
+      active_page: ''
     }
   },
   methods: {

@@ -1,5 +1,5 @@
 <template>
-  <div class="BlackBox">
+  <div class="black-box">
     <black-box-input :class="{transparent: this.active_half() === 'bottom'}"/>
     <hr>
     <black-box-output :class="{transparent: this.active_half() === 'top'}"/>
@@ -39,9 +39,7 @@ export default {
 }
 
 hr {
-  height: 3px;
-  background-color: $main-green;
-  margin-top: $section-margin;
+  @extend %standard-hr;
 }
 
 .transparent {
