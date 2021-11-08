@@ -113,7 +113,8 @@ export default {
     },
     actions: {
         async sendRequest(ctx) {
-            const url = "http://localhost:8000/api/v1/black-box/calculate/";
+            const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/black-box/calculate/";
+	
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -165,7 +166,7 @@ export default {
             ctx.commit('updateActiveHalf', 'top')
         },
         async loadProducts(ctx) {
-            const url = "http://localhost:8000/api/v1/product/";
+            const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/product/";
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -185,7 +186,7 @@ export default {
         },
         async saveBlackBox(ctx, name) {
             ctx.commit('updateBlackBoxName', name)
-            const url = "http://localhost:8000/api/v1/black-box/";
+            const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/black-box/";
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -206,7 +207,7 @@ export default {
             }
         },
         async loadBlackBoxes(ctx) {
-            const url = "http://localhost:8000/api/v1/black-box/";
+            const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/black-box/";
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -225,7 +226,7 @@ export default {
             }
         },
         async deleteBlackBox(ctx, id) {
-            const url = `http://localhost:8000/api/v1/black-box/${id}`;
+            const url = `https://bobromania-calculator-api.herokuapp.com/api/v1/black-box/${id}`;
             const response = await fetch(url, {
                 method: 'DELETE',
                 headers: {

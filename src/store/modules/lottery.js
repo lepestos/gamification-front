@@ -63,7 +63,7 @@ export default {
     },
     actions: {
         async sendLotteryRequest(ctx) {
-            const url = "http://localhost:8000/api/v1/lottery/calculate/";
+            const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/lottery/calculate/";
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
