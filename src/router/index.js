@@ -19,7 +19,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('https://bobromania-calculator.herokuapp.com'),
+  history: createWebHistory(process.env.BASE_URL),
   routes
 })
 
