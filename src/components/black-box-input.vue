@@ -9,9 +9,9 @@
               <datalist id="lots">
                 <option v-for="lot in this.products()" :value="lot.price">{{lot.name}}</option>
               </datalist>
-              <input type="number"  class="lot-costs__cheap" placeholder="Дешёвый" v-model="input_data.lot_cost.cheap" min="0" required :disabled="this.active_half() !== 'top'" list="lots">
-              <input type="number" class="lot-costs__middle" placeholder="Средний" v-model="input_data.lot_cost.middle" min="0" required :disabled="this.active_half() !== 'top'" list="lots">
-              <input type="number" class="lot-costs__costly" placeholder="Дорогой" v-model="input_data.lot_cost.costly" min="0" required :disabled="this.active_half() !== 'top'" list="lots">
+              <input type="number"  class="lot-costs__cheap" placeholder="Дешёвый" v-model="form_input_data.lot_cost.cheap" min="0" required :disabled="this.black_box_active_half() !== 'top'" list="lots">
+              <input type="number" class="lot-costs__middle" placeholder="Средний" v-model="form_input_data.lot_cost.middle" min="0" required :disabled="this.black_box_active_half() !== 'top'" list="lots">
+              <input type="number" class="lot-costs__costly" placeholder="Дорогой" v-model="form_input_data.lot_cost.costly" min="0" required :disabled="this.black_box_active_half() !== 'top'" list="lots">
             </div>
           </div>
         </div>
@@ -20,18 +20,18 @@
             <h2>Расчётные константы</h2>
             <div class="constants__inputs">
               <span class="constants__span_two-lines">Целевая лояльность:</span>
-              <input type="number" v-model="input_data.loyalty" min="0.3" max="0.9" step="0.01" required :disabled="this.active_half() !== 'top'">
+              <input type="number" v-model="form_input_data.loyalty" min="0.3" max="0.9" step="0.01" required :disabled="this.black_box_active_half() !== 'top'">
               <span class="constants__span_one-line">Рентабельность:</span>
-              <input type="number" v-model="input_data.rentability" min="0" max="1" step="0.01" required :disabled="this.active_half() !== 'top'">
+              <input type="number" v-model="form_input_data.rentability" min="0" max="1" step="0.01" required :disabled="this.black_box_active_half() !== 'top'">
             </div>
           </div>
           <div class="black-box-input__costly-amount costly-amount">
             <h2>Количество дорогих лотов</h2>
-            <input type="number" placeholder="Введите количество" v-model="input_data.costly_amount" min="0" required :disabled="this.active_half() !== 'top'">
+            <input type="number" placeholder="Введите количество" v-model="form_input_data.costly_amount" min="0" required :disabled="this.black_box_active_half() !== 'top'">
           </div>
         </div>
       </div>
-      <button type="submit" class="black-box-input__calculate-parameters" :disabled="this.active_half() !== 'top'">Рассчитать параметры</button>
+      <button type="submit" class="black-box-input__calculate-parameters" :disabled="this.black_box_active_half() !== 'top'">Рассчитать параметры</button>
       <h2 class="black-box-input__error" v-if="error_message !== ''">{{error_message}}</h2>
     </form>
   </section>
@@ -44,24 +44,24 @@ import {mapGetters} from "vuex";
 export default {
   name: "black-box-input.vue",
   methods: {
-    ...mapActions(['calculateParametersClicked']),
-    ...mapGetters(['active_half', 'products']),
-    checkAndSubmit() {
-      if (this.input_data.lot_cost.cheap < this.input_data.lot_cost.middle && this.input_data.lot_cost.middle < this.input_data.lot_cost.costly) {
-        this.error_message = ''
-        this.calculateParametersClicked(this.input_data)
+    ...mapActions(['blackBoxCalculateParametersClicked', 'loadProducts']),
+    ...mapGetters(['black_box_active_half', 'products', 'black_box_load_data']),
+    async checkAndSubmit() {
+      if (this.form_input_data.lot_cost.cheap < this.form_input_data.lot_cost.middle && this.form_input_data.lot_cost.middle < this.form_input_data.lot_cost.costly) {
+        this.error_message = '';
+        await this.blackBoxCalculateParametersClicked(this.form_input_data)
       }
       else {
-        this.error_message = "Неворно заданы цены лотов. Проверьте данные и повторите попытку."
+        this.error_message = "Неверно заданы цены лотов. Проверьте данные и повторите попытку."
       }
     }
   },
-  async beforeCreate() {
-    await this.$store.dispatch('loadProducts');
+  async mounted() {
+    this.form_input_data = this.black_box_load_data();
   },
   data() {
     return {
-      input_data: {
+      form_input_data: {
         lot_cost: {
           cheap: '',
           middle: '',

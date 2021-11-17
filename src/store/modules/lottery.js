@@ -1,68 +1,105 @@
+const default_lottery = {
+    active_half: 'top',
+    lots: [{price:'', amount: ''}],
+    write_off: '',
+    referral_on: false,
+    referral_coeff: '',
+    discount: '',
+    ticket_amount: {
+        min: '',
+        cur: '',
+        max: ''
+    },
+    ticket_price: {
+        min: '',
+        cur: '',
+        max: ''
+    },
+    total_cost: '',
+    min_profit: '',
+    min_rentability: '',
+    max_rentability: '',
+    message: '',
+}
+
 export default {
     state: {
-        products: [],
-        active_half: 'top',
-        lots: [],
-        write_off: '',
-        referral_coeff: '',
-        discount: '',
-        ticket_amount: '',
-        total_cost: '',
-        ticket_price: '',
-        min_profit: '',
-        min_rentability: '',
-        max_rentability: '',
-        message: '',
+        lottery: default_lottery,
     },
     mutations: {
-        updateInput(state, value) {
-            state.lots = value.lots;
-            state.write_off = value.write_off;
-            state.referral_coeff = value.referral_coeff;
-            state.discount = value.discount;
-            state.ticket_price = value.ticket_price;
-            state.ticket_amount = value.ticket_amount;
+        resetLottery(state) {
+            state.lottery = default_lottery
         },
-        updateOutput(state, value) {
-            state.write_off = value.write_off;
-            state.ticket_amount = value.ticket_amount;
-            state.total_cost = value.total_cost;
-            state.ticket_price = value.ticket_price;
-            state.min_profit = value.min_profit;
-            state.min_rentability = value.min_rentability;
-            state.max_rentability = value.max_rentability;
-            state.message = value.message;
-        }
+        updateLotteryInput(state, form_input_data) {
+            state.lottery = {...state.lottery, ...form_input_data}
+        },
+        updateLotteryOutput(state, output_json) {
+            state.lottery = {...state.lottery, ...output_json}
+        },
+        updateLotteryRecalc(state, form_recalc_data) {
+            state.lottery = {...state.lottery, ...form_recalc_data}
+        },
+        updateLotteryActiveHalf(state, value) {
+            state.lottery.active_half = value;
+        },
     },
     getters: {
-        active_half(state) {
-            return state.active_half;
+        lottery_active_half(state) {
+            return state.lottery.active_half;
+        },
+        lottery_load_data(state) {
+            return {
+                lots: state.lottery.lots,
+                write_off: state.lottery.write_off,
+                referral_on: state.lottery.referral_on,
+                referral_coeff: state.referral_coeff,
+                discount: state.discount,
+            }
         },
         lottery_input_data(state) {
             return {
-                lots: state.lots,
-                write_off: state.write_off,
-                referral_coeff: state.referral_coeff,
-                discount: state.discount,
-                ticket_price: state.ticket_price,
-                ticket_amount: state.ticket_amount,
+                lots: state.lottery.lots,
+                write_off: state.lottery.write_off,
+                referral_coeff: state.lottery.referral_on ? state.lottery.referral_coeff : 0,
+                discount: state.lottery.referral_on ? state.lottery.discount : 0,
+                ticket_price: state.lottery.ticket_price.cur !== '' ? state.lottery.ticket_price.cur : 0,
+                ticket_amount: state.lottery.ticket_amount.cur !== '' ? state.lottery.ticket_amount.cur : 0,
             }
         },
         lottery_output_data(state) {
             return {
-                write_off: state.write_off,
-                ticket_amount: state.ticket_amount,
-                total_cost: state.total_cost,
-                ticket_price: state.ticket_price,
-                min_profit: state.min_profit,
-                min_rentability: state.min_rentability,
-                max_rentability: state.max_rentability,
-                message: state.message,
+                ticket_amount: state.lottery.ticket_amount,
+                total_cost: state.lottery.total_cost,
+                ticket_price: state.lottery.ticket_price,
+                min_profit: state.lottery.min_profit,
+                write_off: state.lottery.write_off,
+                min_rentability: state.lottery.min_rentability,
+                max_rentability: state.lottery.max_rentability,
+                message: state.lottery.message,
             }
         },
+        lottery_recalc_data(state) {
+            return {
+                ticket_price: state.lottery.ticket_price,
+                ticket_amount: state.lottery.ticket_amount,
+            }
+        }
     },
     actions: {
-        async sendLotteryRequest(ctx) {
+        lotteryReset(ctx) {
+            ctx.commit('resetLottery')
+        },
+        async lotteryCalculateParametersClicked(ctx,  form_input_data) {
+            ctx.commit('updateLotteryInput', form_input_data)
+            await this.dispatch('lotteryCalculateRequest', ctx)
+            ctx.commit('updateLotteryActiveHalf', 'bottom')
+        },
+        async lotteryRecalculateParametersClicked(ctx,  form_recalc_data) {
+            ctx.commit('updateLotteryRecalc', form_recalc_data)
+            await this.dispatch('lotteryCalculateRequest', ctx)
+        },
+        async lotteryCalculateRequest(ctx) {
+            ctx.commit('changeLoading', true)
             const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/lottery/calculate/";
             const response = await fetch(url, {
                 method: 'POST',
@@ -74,17 +111,13 @@ export default {
             });
             if (response.ok) {
                 const json = await response.json();
-                console.log(json)
-                ctx.commit('updateOutput', json)
+                ctx.commit('updateLotteryOutput', json)
             } else {
                 console.log("Ошибка HTTP: " + response.status);
                 const json = await response.json();
                 console.log(json);
             }
+            ctx.commit('changeLoading', false)
         },
-        async calculateLotteryClicked(ctx,  form_input_data) {
-            ctx.commit('updateInput', form_input_data)
-            await this.dispatch('sendLotteryRequest', ctx)
-        }
     }
 }

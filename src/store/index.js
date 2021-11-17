@@ -1,12 +1,39 @@
 import { createStore } from 'vuex'
 import blackBox from "./modules/blackBox";
 import lottery from "./modules/lottery";
-import converter from "./modules/converter";
+import page_hat from "./modules/page_hat";
+import products from "./modules/products";
 
 export default createStore({
+  state: {
+    base_url: 'https://bobromania-calculator-api.herokuapp.com/api/v1',
+    loading: false,
+    loading_requests: 0,
+  },
+  mutations: {
+    changeLoading(state, value) {
+      if (value) {
+        state.loading_requests++;
+        state.loading = true;
+      }
+      else {
+        state.loading_requests--;
+        state.loading = state.loading_requests !== 0
+      }
+    }
+  },
+  getters: {
+    base_url(state) {
+      return state.base_url;
+    },
+    is_loading(state) {
+      return state.loading;
+    }
+  },
   modules: {
     blackBox,
-    converter,
-    lottery
+    page_hat,
+    lottery,
+    products
   }
 })

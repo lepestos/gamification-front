@@ -11,9 +11,9 @@
       </div>
     </div>
     <ul class="hat__navigation">
-      <li class="hat__link" :class="{hat__link_active: active_page === 'BlackBox'}" @click="active_page = 'BlackBox'"><router-link to="/BlackBox">Black Box</router-link></li>
-      <li class="hat__link" :class="{hat__link_active: active_page === 'Lottery'}" @click="active_page = 'Lottery'"><router-link to="/Lottery">Лотерея</router-link></li>
-      <li class="hat__link" :class="{hat__link_active: active_page === 'Bingo'}" @click="active_page = 'Bingo'"><router-link to="/Bingo">Бинго</router-link></li>
+      <li class="hat__link" :class="{hat__link_active: this.active_page() === 'BlackBox'}"><router-link to="/BlackBox">Black Box</router-link></li>
+      <li class="hat__link" :class="{hat__link_active: this.active_page() === 'Lottery'}"><router-link to="/Lottery">Лотерея</router-link></li>
+      <li class="hat__link" :class="{hat__link_active: this.active_page() === 'Bingo'}"><router-link to="/Bingo">Бинго</router-link></li>
     </ul>
   </section>
 </template>
@@ -30,12 +30,11 @@ export default {
         rub_to_bobr: 1,
         bobr_to_rub: 1
       },
-      active_page: ''
     }
   },
   methods: {
-    ...mapGetters(['course']),
-    ...mapActions(['rub_to_bobr_changed', 'bobr_to_rub_changed']),
+    ...mapGetters(['course', 'active_page']),
+    ...mapActions(['rub_to_bobr_changed', 'bobr_to_rub_changed', 'change_active_page']),
     rtbchanged() {
       this.rub_to_bobr_changed(this.courseInput.rub_to_bobr)
       this.courseInput.bobr_to_rub = this.course().bobr_to_rub

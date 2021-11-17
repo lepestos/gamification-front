@@ -7,8 +7,16 @@
 </template>
 
 <script>
+import {mapActions} from "vuex"
+
 export default {
-  name: "Bingo.vue"
+  name: "Bingo.vue",
+  methods: {
+    ...mapActions(['change_active_page'])
+  },
+  mounted() {
+    this.change_active_page('Bingo')
+  }
 }
 </script>
 

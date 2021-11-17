@@ -1,110 +1,104 @@
+const default_black_box = {
+    active_half: 'top',
+    lot_cost: {
+        cheap: '',
+        middle: '',
+        costly: '',
+    },
+    loyalty: 0.6,
+    rentability: 0.15,
+    costly_amount: '',
+    amounts: {
+        cheap: '',
+        middle: '',
+        costly: '',
+    },
+    probabilities: {
+        cheap: '',
+        middle: '',
+        costly: '',
+    },
+    black_box_cost: {
+        min: '',
+        cur: '',
+        max: ''
+    },
+    message: '',
+    black_box_name: '',
+}
+
 export default {
     state: {
-        products: [],
-        active_half: 'top',
-        lot_cost: {
-            cheap: '',
-            middle: '',
-            costly: '',
-        },
-        loyalty: '',
-        rentability: '',
-        amounts: {
-            cheap: '',
-            middle: '',
-            costly: '',
-        },
-        percents: {
-            cheap: '',
-            middle: '',
-            costly: '',
-        },
-        black_box_cost: {
-            min: 0,
-            cur: 0,
-            max: 0
-        },
-        message: '',
-        black_box_name: '',
-        saved_black_boxes: ''
+        black_box: default_black_box,
+        saved_black_boxes: []
     },
     mutations: {
-        updateActiveHalf(state, value) {
-            state.active_half = value;
+        resetBlackBox(state) {
+            state.black_box = default_black_box;
         },
-        updateCost(state, value) {
-            state.lot_cost = value;
+        updateBlackBoxInput(state, form_input_data) {
+            state.black_box = {...state.black_box, ...form_input_data}
         },
-        updateLoyalty(state, value) {
-            state.loyalty = value;
+        updateBlackBoxOutput(state, output_json) {
+            state.black_box = {...state.black_box, ...output_json}
         },
-        updateRentability(state, value) {
-            state.rentability = value;
+        updateBlackBoxRecalc(state, form_recalc_data) {
+            state.black_box = {...state.black_box, ...form_recalc_data}
         },
-        updateCostlyAmount(state, value) {
-            state.amounts.costly = value;
-        },
-        updatePercents(state, value) {
-           state.percents = value;
-        },
-        updateAmounts(state, value) {
-           state.amounts = value;
-        },
-        updateBlackBoxCost(state, value) {
-           state.black_box_cost = value;
-        },
-        updateMessage(state, value) {
-            state.message = value;
-        },
-        updateProducts(state, value) {
-            state.products = value;
+        updateBlackBoxActiveHalf(state, value) {
+            state.black_box.active_half = value;
         },
         updateBlackBoxName(state, value) {
-            state.black_box_name = value;
+            state.black_box.black_box_name = value;
         },
         updateSavedBoxes(state, value) {
             state.saved_black_boxes = value;
         }
     },
     getters: {
-        active_half(state) {
-            return state.active_half;
+        black_box_active_half(state) {
+            return state.black_box.active_half;
         },
-        input_data(state) {
+        black_box_load_data(state) {
             return {
-                lot_cost: state.lot_cost,
-                loyalty: state.loyalty,
-                rentability: state.rentability,
-                costly_amount: state.amounts.costly,
-                black_box_cost: state.black_box_cost.cur,
+                lot_cost: state.black_box.lot_cost,
+                loyalty: state.black_box.loyalty,
+                rentability: state.black_box.rentability,
+                costly_amount: state.black_box.costly_amount,
             }
         },
-        output_data(state) {
+        black_box_input_data(state) {
             return {
-                percents: state.percents,
-                amounts: state.amounts,
-                black_box_cost: state.black_box_cost,
+                lot_cost: state.black_box.lot_cost,
+                loyalty: state.black_box.loyalty,
+                rentability: state.black_box.rentability,
+                costly_amount: state.black_box.costly_amount,
+                black_box_cost: state.black_box.black_box_cost.cur !== '' ? state.black_box.black_box_cost.cur : 0,
             }
         },
-        recalculate_data(state) {
+        black_box_output_data(state) {
             return {
-                loyalty: state.loyalty,
-                rentability: state.rentability,
-                black_box_cost: state.black_box_cost,
-                message: state.message,
+                probabilities: state.black_box.probabilities,
+                amounts: state.black_box.amounts,
+                black_box_cost: state.black_box.black_box_cost,
             }
         },
-        products(state) {
-            return state.products;
-        },
-        save_data(state) {
+        black_box_recalculate_data(state) {
             return {
-                name: state.black_box_name,
-                price: state.black_box_cost.cur,
-                lot_cost: state.lot_cost,
-                lot_amount: state.amounts,
-                //loyalty: state.loyalty,
-                //rentability: state.rentability,
+                loyalty: state.black_box.loyalty,
+                rentability: state.black_box.rentability,
+                black_box_cost: state.black_box.black_box_cost,
+                message: state.black_box.message,
+            }
+        },
+        black_box_save_data(state) {
+            return {
+                name: state.black_box.black_box_name,
+                price: state.black_box.black_box_cost.cur,
+                lot_cost: state.black_box.lot_cost,
+                lot_amount: state.black_box.amounts,
+                //loyalty: state.black_box.loyalty,
+                //rentability: state.black_box.rentability,
             }
         },
         saved_boxes(state) {
@@ -112,92 +106,52 @@ export default {
         }
     },
     actions: {
-        async sendRequest(ctx) {
-            const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/black-box/calculate/";
-	
+        blackBoxReset(ctx) {
+            ctx.commit('resetBlackBox')
+        },
+        async blackBoxCalculateParametersClicked(ctx,  form_input_data) {
+            ctx.commit('updateBlackBoxInput', form_input_data)
+            await this.dispatch('blackBoxSendCalculateRequest', ctx)
+            ctx.commit('updateBlackBoxActiveHalf', 'bottom')
+        },
+        async blackBoxRecalculateParametersClicked(ctx,  form_recalc_data) {
+            ctx.commit('updateBlackBoxRecalc', form_recalc_data)
+            await this.dispatch('blackBoxSendCalculateRequest', ctx)
+        },
+        async blackBoxSendCalculateRequest(ctx) {
+            ctx.commit('changeLoading', true)
+            const url = `${ctx.getters.base_url}/black-box/calculate/`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(ctx.getters.input_data)
+                body: JSON.stringify(ctx.getters.black_box_input_data)
             });
             if (response.ok) {
                 const json = await response.json();
-                console.log(json)
-                ctx.commit('updatePercents', json.probabilities)
-                ctx.commit('updateAmounts', json.amounts)
-                ctx.commit('updateBlackBoxCost', json.black_box_cost)
-                ctx.commit('updateMessage', json.message)
+                ctx.commit('updateBlackBoxOutput', json)
             } else {
                 console.log("Ошибка HTTP: " + response.status);
                 const json = await response.json();
                 console.log(json);
             }
-        },
-        async calculateParametersClicked(ctx,  form_input_data) {
-            ctx.commit('updateCost', form_input_data.lot_cost)
-            ctx.commit('updateLoyalty', form_input_data.loyalty)
-            ctx.commit('updateRentability', form_input_data.rentability)
-            ctx.commit('updateCostlyAmount', form_input_data.costly_amount)
-
-            await this.dispatch('sendRequest', ctx)
-
-            ctx.commit('updateActiveHalf', 'bottom')
-        },
-        async recalculateParametersClicked(ctx,  form_recalc_data) {
-            ctx.commit('updateLoyalty', form_recalc_data.loyalty)
-            ctx.commit('updateRentability', form_recalc_data.rentability)
-            ctx.commit('updateBlackBoxCost', form_recalc_data.black_box_cost)
-
-            ctx.commit('updateActiveHalf', 'none')
-            await this.dispatch('sendRequest', ctx)
-            ctx.commit('updateActiveHalf', 'bottom')
-        },
-        blackBoxReset(ctx) {
-            ctx.commit('updateLoyalty', 0.6)
-            ctx.commit('updateRentability', 0.15)
-            ctx.commit('updateCost', {cheap: '', middle: '', costly: ''})
-            ctx.commit('updateAmounts', {cheap: '', middle: '', costly: ''})
-            ctx.commit('updateBlackBoxCost', {min: '', cur: 0, max: ''})
-            ctx.commit('updatePercents', {cheap: '', middle: '', costly: ''})
-            ctx.commit('updateActiveHalf', 'none')
-            ctx.commit('updateActiveHalf', 'top')
-        },
-        async loadProducts(ctx) {
-            const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/product/";
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-            });
-            if (response.ok) {
-                const json = await response.json();
-                console.log(json)
-                ctx.commit('updateProducts', json)
-            } else {
-                console.log("Ошибка HTTP: " + response.status);
-                const json = await response.json();
-                console.log(json);
-            }
+            ctx.commit('changeLoading', false)
         },
         async saveBlackBox(ctx, name) {
+            ctx.commit('changeLoading', true)
             ctx.commit('updateBlackBoxName', name)
-            const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/black-box/";
+            const url = `${ctx.getters.base_url}/black-box/`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(ctx.getters.save_data)
+                body: JSON.stringify(ctx.getters.black_box_save_data)
             });
             if (response.ok) {
-                const json = await response.json();
-                console.log(json)
                 ctx.dispatch('blackBoxReset')
                 ctx.dispatch('loadBlackBoxes')
             } else {
@@ -205,9 +159,11 @@ export default {
                 const json = await response.json();
                 console.log(json);
             }
+            ctx.commit('changeLoading', false)
         },
         async loadBlackBoxes(ctx) {
-            const url = "https://bobromania-calculator-api.herokuapp.com/api/v1/black-box/";
+            ctx.commit('changeLoading', true)
+            const url = `${ctx.getters.base_url}/black-box/`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -217,16 +173,17 @@ export default {
             });
             if (response.ok) {
                 const json = await response.json();
-                console.log(json)
                 ctx.commit('updateSavedBoxes', json)
             } else {
                 console.log("Ошибка HTTP: " + response.status);
                 const json = await response.json();
                 console.log(json);
             }
+            ctx.commit('changeLoading', false)
         },
         async deleteBlackBox(ctx, id) {
-            const url = `https://bobromania-calculator-api.herokuapp.com/api/v1/black-box/${id}`;
+            ctx.commit('changeLoading', true)
+            const url = `${ctx.getters.base_url}/black-box/${id}`;
             const response = await fetch(url, {
                 method: 'DELETE',
                 headers: {
@@ -235,13 +192,13 @@ export default {
                 },
             });
             if (response.ok) {
-                console.log('delete OK')
                 ctx.dispatch('loadBlackBoxes')
             } else {
                 console.log("Ошибка HTTP: " + response.status);
                 const json = await response.json();
                 console.log(json);
             }
+            ctx.commit('changeLoading', false)
         }
     }
 }

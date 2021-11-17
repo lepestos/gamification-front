@@ -1,6 +1,9 @@
 <template>
   <navbar></navbar>
-  <div class="content">
+  <div class="loader_wrapper" v-if="this.is_loading()">
+    <loader/>
+  </div>
+  <div class="content" :class="{transparent: this.is_loading()}">
     <hat></hat>
     <router-view class="page"/>
   </div>
@@ -9,11 +12,22 @@
 <script>
   import Navbar from "./views/Navbar.vue";
   import hat from "./components/hat.vue";
+  import loader from "./components/loader.vue"
+  import {mapGetters, mapActions} from "vuex";
+
   export default {
     name: "App.vue",
     components: {
       Navbar,
       hat,
+      loader,
+    },
+    methods: {
+      ...mapGetters(['is_loading']),
+      ...mapActions(['loadProducts'])
+    },
+    async mounted() {
+      await this.loadProducts();
     }
   }
 </script>
@@ -56,6 +70,21 @@ input[type=number] {
   .page {
     margin-top: $section-margin;
   }
+}
+
+.transparent {
+  transition: all ease 1s;
+  opacity: .3;
+}
+
+.loader_wrapper {
+  position: fixed;
+  z-index: 100;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #app {

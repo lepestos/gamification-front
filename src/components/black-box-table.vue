@@ -33,7 +33,7 @@
         <td><input type="number" v-model="box.price" readonly></td>
       </tr>
       <tr v-else>
-        <td colspan="11">К сожалению, сохранённые Black Box не найдены, создайте новый или повторите попытку позже</td>
+        <td colspan="11" class="black-box-table__message-empty">К сожалению, сохранённые Black Box не найдены, создайте новый или повторите попытку позже</td>
       </tr>
     </table>
     <div class="black-box-table__buttons">
@@ -93,6 +93,10 @@ export default {
   }
   &__header-first-row {
     padding-top: $similar-element-margin;
+  }
+  &__message-empty{
+    color: $main-green;
+    line-height: $input-height;
   }
   &__buttons {
     text-align: center;

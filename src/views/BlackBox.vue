@@ -1,10 +1,10 @@
 <template>
   <div class="black-box">
-    <black-box-input :class="{transparent: this.active_half() === 'bottom'}"/>
+    <black-box-input :class="{transparent: this.black_box_active_half() !== 'top'}"/>
     <hr>
-    <black-box-output :class="{transparent: this.active_half() === 'top'}"/>
-    <transition appear name="fade">
-      <black-box-recalculate v-if="this.active_half() === 'bottom'"/>
+    <black-box-output :class="{transparent: this.black_box_active_half() !== 'bottom'}"/>
+    <transition appear name="fade" v-if="this.black_box_active_half() === 'bottom'">
+      <black-box-recalculate/>
     </transition>
     <hr>
     <black-box-table/>
@@ -17,6 +17,8 @@ import blackBoxOutput from "../components/black-box-output.vue"
 import blackBoxRecalculate from "../components/black-box-recalculate.vue"
 import blackBoxTable from "../components/black-box-table.vue"
 import {mapGetters} from 'vuex'
+import {mapActions} from "vuex"
+
 export default {
   name: "BlackBox.vue",
   components: {
@@ -25,25 +27,27 @@ export default {
     blackBoxRecalculate,
     blackBoxTable
   },
-  methods: mapGetters(['active_half'])
+  methods: {
+    ...mapGetters(['black_box_active_half']),
+    ...mapActions(['change_active_page'])
+  },
+  mounted() {
+    this.change_active_page('BlackBox')
+  }
 }
 </script>
 
 <style scoped lang="scss">
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s ease;
+.fade-enter-active{
+  transition: opacity 1s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from{
   opacity: 0;
 }
 
 hr {
   @extend %standard-hr;
-}
-
-.transparent {
-  opacity: .3;
 }
 
 </style>

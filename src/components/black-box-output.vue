@@ -5,18 +5,18 @@
       <span class="lot-info__middle">Средний лот</span>
       <span class="lot-info__costly">Дорогой лот</span>
       <span class="lot-info__amount">Количество</span>
-      <input type="text" class="lot-info__amount-cheap" v-model="this.output_data().amounts.cheap" readonly>
-      <input type="text" class="lot-info__amount-middle" v-model="this.output_data().amounts.middle" readonly>
-      <input type="text" class="lot-info__amount-costly" v-model="this.output_data().amounts.costly" readonly>
+      <input type="text" class="lot-info__amount-cheap" v-model="this.black_box_output_data().amounts.cheap" readonly>
+      <input type="text" class="lot-info__amount-middle" v-model="this.black_box_output_data().amounts.middle" readonly>
+      <input type="text" class="lot-info__amount-costly" v-model="this.black_box_output_data().amounts.costly" readonly>
       <span class="lot-info__percent">Вероятность выпадения</span>
-      <input type="text" class="lot-info__percent-cheap" v-model="this.output_data().percents.cheap" readonly>
-      <input type="text" class="lot-info__percent-middle" v-model="this.output_data().percents.middle" readonly>
-      <input type="text" class="lot-info__percent-costly" v-model="this.output_data().percents.costly" readonly>
+      <input type="text" class="lot-info__percent-cheap" v-model="this.black_box_output_data().probabilities.cheap" readonly>
+      <input type="text" class="lot-info__percent-middle" v-model="this.black_box_output_data().probabilities.middle" readonly>
+      <input type="text" class="lot-info__percent-costly" v-model="this.black_box_output_data().probabilities.costly" readonly>
     </div>
     <div class="black-box-output__black-box-cost black-box-cost">
       <h2>Рассчитанная стоимость Black Box</h2>
-        <input type="number" :value="this.output_data().black_box_cost.cur" readonly><span>бобров</span>
-        <input type="number" :value="this.output_data().black_box_cost.cur * this.course().bobr_to_rub" readonly><span>рублей</span>
+        <input type="number" :value="this.black_box_output_data().black_box_cost.cur" readonly><span>бобров</span>
+        <input type="number" :value="this.black_box_output_data().black_box_cost.cur !== '' ? (this.black_box_output_data().black_box_cost.cur * this.course().bobr_to_rub) : ''" readonly><span>рублей</span>
     </div>
   </section>
 </template>
@@ -26,7 +26,7 @@ import {mapGetters} from "vuex";
 
 export default {
   name: "black-box-output.vue",
-  methods: mapGetters(['output_data', 'course'])
+  methods: mapGetters(['black_box_output_data', 'course'])
 }
 </script>
 
