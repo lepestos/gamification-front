@@ -79,13 +79,13 @@ export default {
 
 .profit, .rentability {
   display: grid;
-  grid-template-columns: repeat(2, 30px 60px);
+  grid-template-columns: repeat(2, 30px 100px);
   grid-gap: $similar-element-margin;
   h2 {
     grid-column: 1 / 5;
   }
   input {
-    width: 60px;
+    width: 100px;
   }
   span {
     line-height: $input-height;

@@ -6,7 +6,7 @@ import products from "./modules/products";
 
 export default createStore({
   state: {
-    base_url: 'https://bobromania-calculator-api.herokuapp.com/api/v1',
+    base_url: 'http://localhost:8000/api/v1',
     loading: false,
     loading_requests: 0,
   },

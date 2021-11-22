@@ -5,10 +5,13 @@
           <div class="lottery-input__left">
             <div class="lottery-input__lots lots">
               <h2>Количество и стоимость лотов</h2>
+              <datalist id="lots">
+                <option v-for="lot in this.products()" :value="lot.price">{{lot.name}}</option>
+              </datalist>
               <template v-for="(value, index) in form_input_data.lots">
-                <input class="lots__amount" type="number" placeholder="количество" v-model="value.amount" required :disabled="this.lottery_active_half() !== 'top'">
-                <input class="lots__price" type="number" placeholder="стоимость" v-model="value.price" required :disabled="this.lottery_active_half() !== 'top'">
-                <button class="lots__delete" v-if="index !== 0" @click="deleteLot(index)" :disabled="this.lottery_active_half() !== 'top'"><img src="../assets/img/trash.png" alt=""></button>
+                <input class="lots__amount" type="number" placeholder="количество" v-model="value.amount" min="1" max="9999999999" step="1" required :disabled="this.lottery_active_half() !== 'top'">
+                <input class="lots__price" type="number" placeholder="стоимость" v-model="value.price" min="1" max="9999999999" step="1" required :disabled="this.lottery_active_half() !== 'top'" list="lots">
+                <button class="lots__delete" v-if="index !== 0" @click="deleteLot(index)" :disabled="this.lottery_active_half() !== 'top'" type="button"><img src="../assets/img/trash.png" alt=""></button>
               </template>
               <button class="lots__add" type="button" @click="addLot" :disabled="this.lottery_active_half() !== 'top'">Добавить лот</button>
             </div>
@@ -16,7 +19,7 @@
           <div class="lottery-input__right">
             <div class="lottery-input__write-off write-off">
               <h2>Дополнительное списание</h2>
-              <input type="number" placeholder="введите значение" v-model="form_input_data.write_off" required :disabled="this.lottery_active_half() !== 'top'">
+              <input type="number" placeholder="введите значение" v-model="form_input_data.write_off" min="1" max="9999999999" step="1" required :disabled="this.lottery_active_half() !== 'top'">
             </div>
             <div class="lottery-input__referral referral">
               <h2>Реферальная программа</h2>
@@ -26,9 +29,9 @@
                   :disabled="this.lottery_active_half() !== 'top'"/>
               <template v-if="form_input_data.referral_on">
                 <span>Коэффициент:</span>
-                <input type="number" placeholder="число" v-model="form_input_data.referral_coeff" required :disabled="this.lottery_active_half() !== 'top'">
+                <input type="number" placeholder="число" v-model="form_input_data.referral_coeff" min="1" max="9999999999" step="1" required :disabled="this.lottery_active_half() !== 'top'">
                 <span>Скидка:</span>
-                <input type="number" step="0.01" placeholder="число" v-model="form_input_data.discount" required :disabled="this.lottery_active_half() !== 'top'">
+                <input type="number" placeholder="число" v-model="form_input_data.discount" min="0" max="0.99" step="0.01" required :disabled="this.lottery_active_half() !== 'top'">
               </template>
             </div>
           </div>

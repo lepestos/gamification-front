@@ -110,15 +110,37 @@ export default {
             ctx.commit('resetBlackBox')
         },
         async blackBoxCalculateParametersClicked(ctx,  form_input_data) {
+            ctx.commit('changeLoading', true)
             ctx.commit('updateBlackBoxInput', form_input_data)
-            await this.dispatch('blackBoxSendCalculateRequest', ctx)
-            ctx.commit('updateBlackBoxActiveHalf', 'bottom')
+            const url = `${ctx.getters.base_url}/black-box/calculate/`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ctx.getters.black_box_input_data)
+            });
+            if (response.ok) {
+                const json = await response.json();
+                console.log(json)
+                if (json.message === '') {
+                    ctx.commit('updateBlackBoxOutput', json)
+                    ctx.commit('updateBlackBoxActiveHalf', 'bottom')
+                }
+                else {
+                    ctx.commit('changeLoading', false)
+                    return json.message
+                }
+            } else {
+                console.log("Ошибка HTTP: " + response.status);
+                const json = await response.json();
+                console.log(json);
+            }
+            ctx.commit('changeLoading', false)
         },
         async blackBoxRecalculateParametersClicked(ctx,  form_recalc_data) {
             ctx.commit('updateBlackBoxRecalc', form_recalc_data)
-            await this.dispatch('blackBoxSendCalculateRequest', ctx)
-        },
-        async blackBoxSendCalculateRequest(ctx) {
             ctx.commit('changeLoading', true)
             const url = `${ctx.getters.base_url}/black-box/calculate/`;
             const response = await fetch(url, {

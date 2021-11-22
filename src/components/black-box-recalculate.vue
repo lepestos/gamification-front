@@ -32,7 +32,7 @@
       </div>
     </form>
     <form action="" id="save" @submit.prevent="save()">
-      <input type="text" placeholder="Название" v-model="name" required>
+      <input type="text" maxlength="179" placeholder="Название" v-model="name" required>
       <button type="submit">Сохранить расчёт</button>
     </form>
   </section>

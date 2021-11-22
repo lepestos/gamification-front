@@ -5,14 +5,16 @@
            :step="step"
            :min="min"
            :max="max"
-           :value="value">
+           :value="value"
+           required>
     <input type="range"
            class="styled-slider slider-progress"
            :id="'slider-' + id_key"
            :step="step"
            :min="min"
            :max="max"
-           :value="value">
+           :value="value"
+           required>
   </div>
 </template>
 

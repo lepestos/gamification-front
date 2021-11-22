@@ -24,8 +24,7 @@
       </div>
     </form>
     <form action="" id="save" @submit.prevent="save()">
-      <h2 class="message">К сожалению, сейчас сохранение недоступно</h2>
-      <input type="text" placeholder="Название" v-model="name" required>
+      <input type="text" maxlength="179" placeholder="Название" v-model="name" required>
       <button type="submit">Сохранить расчёт</button>
     </form>
   </section>
@@ -60,7 +59,7 @@ export default {
   },
   methods: {
     ...mapGetters(['lottery_recalc_data']),
-    ...mapActions(['lotteryRecalculateParametersClicked', 'lotteryReset']),
+    ...mapActions(['lotteryRecalculateParametersClicked', 'lotteryReset', 'saveLottery']),
     async submit() {
       await this.lotteryRecalculateParametersClicked(this.recalc_data)
       this.recalc_data = this.lottery_recalc_data()
@@ -69,7 +68,7 @@ export default {
       this.lotteryReset()
     },
     save() {
-      console.log('TO DO')
+      this.saveLottery(this.name);
     }
   },
   beforeMount() {

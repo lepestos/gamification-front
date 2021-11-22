@@ -6,6 +6,8 @@
     <transition appear name="fade" v-if="this.lottery_active_half() === 'bottom'">
       <lottery-recalculate/>
     </transition>
+    <hr>
+    <lottery-table/>
   </div>
 </template>
 
@@ -13,6 +15,7 @@
 import lotteryInput from "@/components/lottery-input.vue"
 import lotteryOutput from "@/components/lottery-output.vue"
 import lotteryRecalculate from "@/components/lottery-recalculate.vue"
+import lotteryTable from "@/components/lottery-table.vue"
 import {mapGetters} from 'vuex'
 import {mapActions} from "vuex";
 
@@ -22,6 +25,7 @@ export default {
     lotteryInput,
     lotteryOutput,
     lotteryRecalculate,
+    lotteryTable
   },
   methods: {
     ...mapGetters(['lottery_active_half']),

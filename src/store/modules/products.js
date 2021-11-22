@@ -24,7 +24,6 @@ export default {
             });
             if (response.ok) {
                 const json = await response.json();
-                console.log(json)
                 ctx.commit('updateProducts', json)
             } else {
                 console.log("Ошибка HTTP: " + response.status);
