@@ -9,12 +9,23 @@
       <div class="courses__bobr-to-rub">
         <span>1 бобр =</span> <input type="number" placeholder="введите значение" name="rub-to-bobr" v-model="courseInput.bobr_to_rub" @input="btrchanged()"> <span>рублей</span>
       </div>
+      <h2 v-if="message !== ''" class="courses__message">{{message}}</h2>
     </div>
     <ul class="hat__navigation">
       <li class="hat__link" :class="{hat__link_active: this.active_page() === 'BlackBox'}"><router-link to="/BlackBox">Black Box</router-link></li>
       <li class="hat__link" :class="{hat__link_active: this.active_page() === 'Lottery'}"><router-link to="/Lottery">Лотерея</router-link></li>
-      <li class="hat__link" :class="{hat__link_active: this.active_page() === 'Bingo'}"><router-link to="/Bingo">Бинго</router-link></li>
+      <li class="hat__link" :class="{hat__link_active: this.active_page() === 'Bingo-discounts' || this.active_page() === 'Bingo-boosters'}"><router-link to="/Bingo-discounts">Бинго</router-link></li>
     </ul>
+    <div class="hat__bingo-tabs" v-if="this.active_page() === 'Bingo-discounts' || this.active_page() === 'Bingo-boosters'">
+      <router-link
+          :class="{'hat__bingo-tabs_active': this.active_page() === 'Bingo-discounts',
+                   'hat__bingo-tabs_inactive': this.active_page() !== 'Bingo-discounts'}"
+          to="/Bingo-discounts">Скидки</router-link>
+      <router-link
+          :class="{'hat__bingo-tabs_active': this.active_page() === 'Bingo-boosters',
+                   'hat__bingo-tabs_inactive': this.active_page() !== 'Bingo-boosters'}"
+          to="/Bingo-boosters">Бустеры</router-link>
+    </div>
   </section>
 </template>
 
@@ -30,18 +41,31 @@ export default {
         rub_to_bobr: 1,
         bobr_to_rub: 1
       },
+      message: '',
     }
   },
   methods: {
     ...mapGetters(['course', 'active_page']),
     ...mapActions(['rub_to_bobr_changed', 'bobr_to_rub_changed', 'change_active_page']),
     rtbchanged() {
-      this.rub_to_bobr_changed(this.courseInput.rub_to_bobr)
-      this.courseInput.bobr_to_rub = this.course().bobr_to_rub
+      if (0.01 <= this.courseInput.rub_to_bobr && this.courseInput.rub_to_bobr <= 100 || this.courseInput.rub_to_bobr == 0) {
+        this.rub_to_bobr_changed(this.courseInput.rub_to_bobr)
+        this.courseInput.bobr_to_rub = this.course().bobr_to_rub
+        this.message = ''
+      }
+      else {
+        this.message = 'Максимальное соотношение 100 к 1!'
+      }
     },
     btrchanged() {
-      this.bobr_to_rub_changed(this.courseInput.bobr_to_rub)
-      this.courseInput.rub_to_bobr = this.course().rub_to_bobr
+      if (0.01 <= this.courseInput.bobr_to_rub && this.courseInput.bobr_to_rub <= 100 || this.courseInput.bobr_to_rub == 0) {
+        this.bobr_to_rub_changed(this.courseInput.bobr_to_rub)
+        this.courseInput.rub_to_bobr = this.course().rub_to_bobr
+        this.message = ''
+      }
+      else {
+        this.message = 'Максимальное соотношение 100 к 1!'
+      }
     }
   },
   beforeMount() {
@@ -82,6 +106,33 @@ export default {
     a:hover {
       cursor: default;
       color: $main-grey;
+    }
+  }
+  &__bingo-tabs {
+    margin-top: $element-margin;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    height: $input-height;
+    line-height: $input-height;
+    &_inactive {
+      background-color: rgba(255, 255, 255, 0.2);
+      &:hover {
+        background-color: rgba(0, 164, 96, 0.05);
+        cursor: pointer;
+      }
+    }
+    &_active {
+      background-color: rgba(0, 164, 96, 0.2);
+      &:hover {
+        cursor: default;
+      }
+    }
+    a {
+      flex: 1 1 50%;
+      color: $main-green;
+      display: inline-block;
+      width: 100%;
 
     }
   }
@@ -95,6 +146,10 @@ export default {
   span {
     display: inline-block;
     min-width: 65px;
+  }
+  &__message {
+    color: red;
+    font-size: 12px;
   }
   &__rub-to-bobr, &__bobr-to-rub {
     margin-top: $similar-element-margin;

@@ -44,7 +44,7 @@ import {mapGetters} from "vuex";
 export default {
   name: "black-box-input.vue",
   methods: {
-    ...mapActions(['blackBoxCalculateParametersClicked', 'loadProducts']),
+    ...mapActions(['blackBoxCalculateParametersClicked']),
     ...mapGetters(['black_box_active_half', 'products', 'black_box_load_data']),
     async checkAndSubmit() {
       if (this.form_input_data.lot_cost.cheap < this.form_input_data.lot_cost.middle && this.form_input_data.lot_cost.middle < this.form_input_data.lot_cost.costly) {

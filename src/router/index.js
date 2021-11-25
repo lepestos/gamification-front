@@ -12,9 +12,14 @@ const routes = [
     component: () => import('../views/Lottery.vue')
   },
   {
-    path: '/Bingo',
-    name: 'Bingo',
-    component: () => import('../views/Bingo.vue')
+    path: '/Bingo-discounts',
+    name: 'Bingo-discounts',
+    component: () => import('../views/Bingo-discounts.vue')
+  },
+  {
+    path: '/Bingo-boosters',
+    name: 'Bingo-boosters',
+    component: () => import('../views/Bingo-boosters.vue')
   },
 ]
 

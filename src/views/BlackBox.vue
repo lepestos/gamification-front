@@ -46,8 +46,4 @@ export default {
   opacity: 0;
 }
 
-hr {
-  @extend %standard-hr;
-}
-
 </style>

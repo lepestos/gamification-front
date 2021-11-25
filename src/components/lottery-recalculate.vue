@@ -8,6 +8,7 @@
           :max="recalc_data.ticket_amount.max"
           :step="1"
           :value="recalc_data.ticket_amount.cur"
+          :has_name="true"
           @input="recalc_data.ticket_amount.cur = $event.target.value"
       >Изменить количество билетов</slider-input>
       <slider-input
@@ -16,6 +17,7 @@
           :max="recalc_data.ticket_price.max"
           :step="1"
           :value="recalc_data.ticket_price.cur"
+          :has_name="true"
           @input="recalc_data.ticket_price.cur = $event.target.value"
       >Изменить стоимость билета</slider-input>
       <div class="lottery-recalculate__buttons buttons">

@@ -39,8 +39,6 @@ export default {
 
 <style scoped lang="scss">
 
-hr {
-  @extend %standard-hr;
-}
+
 
 </style>

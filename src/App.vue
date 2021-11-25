@@ -77,6 +77,10 @@ input[type=number] {
   opacity: .3;
 }
 
+hr {
+  @extend %standard-hr;
+}
+
 .loader_wrapper {
   position: fixed;
   z-index: 100;
@@ -94,6 +98,7 @@ input[type=number] {
   background-color: $background-grey;
   min-height: 100vh;
 }
+
 
 @font-face {
   font-family: './assets/fonts/Circe/Circe';

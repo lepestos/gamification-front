@@ -7,11 +7,11 @@ export default {
     mutations: {
         updateRubToBobr(state, value) {
             state.rub_to_bobr = value
-            state.bobr_to_rub = ((value == 0) ? 0 : 1/value).toPrecision(1)
+            state.bobr_to_rub = ((value == 0) ? 0 : 1/value).toFixed(2)
         },
         updateBobrToRub(state, value) {
             state.bobr_to_rub = value
-            state.rub_to_bobr = ((value == 0) ? 0 : 1/value).toPrecision(1)
+            state.rub_to_bobr = ((value == 0) ? 0 : 1/value).toFixed(2)
         },
         updateActivePage(state, value) {
             state.active_page = value;

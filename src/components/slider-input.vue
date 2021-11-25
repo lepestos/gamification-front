@@ -1,6 +1,6 @@
 <template>
   <div class="slider-input">
-    <h2><slot></slot></h2>
+    <h2 v-if="has_name"><slot></slot></h2>
     <input type="number"
            :step="step"
            :min="min"
@@ -21,10 +21,11 @@
 <script>
 export default {
   name: "slider-input.vue",
-  props: ['min', 'value', 'max', 'step', 'header', 'id_key'],
+  props: ['min', 'value', 'max', 'step', 'header', 'id_key', 'slider_width', 'has_name'],
   methods: {
     updateSliderColor() {
       let e = document.getElementById('slider-' + this.id_key)
+      e.style.setProperty('width', this.slider_width ? this.slider_width : '300px')
       e.style.setProperty('--value', this.value);
       e.style.setProperty('--min', this.min);
       e.style.setProperty('--max', this.max);
@@ -44,7 +45,7 @@ export default {
 .slider-input {
   display: grid;
   margin-top: $element-margin;
-  grid-template-columns: 100px 300px+$similar-element-margin*2;
+  grid-template-columns: 100px 300px;
   grid-gap: $similar-element-margin;
   grid-auto-rows: $input-height;
   line-height: $input-height;

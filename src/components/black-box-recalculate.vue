@@ -8,6 +8,7 @@
           :max="0.9"
           :step="0.01"
           :value="recalc_data.loyalty"
+          :has_name="true"
           @input="recalc_data.loyalty = $event.target.value"
       >Изменить целевую лояльность</slider-input>
       <slider-input
@@ -16,14 +17,16 @@
           :max="1"
           :step="0.01"
           :value="recalc_data.rentability"
+          :has_name="true"
           @input="recalc_data.rentability = $event.target.value"
       >Изменить целевую рентабельность</slider-input>
       <slider-input
           :id_key="'cost'"
           :min="recalc_data.black_box_cost.min"
           :max="recalc_data.black_box_cost.max"
-          :step="10 "
+          :step="10"
           :value="recalc_data.black_box_cost.cur"
+          :has_name="true"
           @input="recalc_data.black_box_cost.cur = $event.target.value"
       >Изменить стоимость Black Box</slider-input>
       <div class="black-box-recalculate__buttons buttons">
